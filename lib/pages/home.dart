@@ -454,12 +454,12 @@ class _TravelPageState extends State<TravelPage> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
+                        /*Icon(
                           IconData(0xe1d5, fontFamily: 'MaterialIcons'),
                           color: (selectBusesorStops == 0)
                               ? Color.fromRGBO(39, 49, 65, 1)
                               : Colors.white,
-                        ),
+                        ),*/
                         Text(
                           "Stops",
                           style: TextStyle(
@@ -493,12 +493,12 @@ class _TravelPageState extends State<TravelPage> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
+                        /*Icon(
                           IconData(0xe1d5, fontFamily: 'MaterialIcons'),
                           color: (selectBusesorStops == 1)
                               ? Color.fromRGBO(39, 49, 65, 1)
                               : Colors.white,
-                        ),
+                        ),*/
                         Text(
                           "Bus",
                           style: TextStyle(
