@@ -136,10 +136,11 @@ class _LostFoundFormState extends State<LostFoundForm> {
                         filled: true,
                         hintStyle: MyFonts.medium.size(15).setColor(kWhite),
                     ),
-                    maxLength: 50,
+                    maxLength: 100,
                     maxLines: 6,
                     onChanged: (value){
                       description=value;
+
                     },
                     validator: (value){
                       if(value==null || value=="") return "This field cannot be null";
