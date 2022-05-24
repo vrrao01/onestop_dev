@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:onestop_dev/pages/login.dart';
 import 'package:provider/provider.dart';
 import 'package:onestop_dev/stores/login_store.dart';
 
@@ -15,8 +16,7 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
-    Provider.of<LoginStore>(context, listen: false)
-        .isAlreadyAuthenticated()
+    context.read<LoginStore>().isAlreadyAuthenticated()
         .then((result) {
       if (result) {
         Navigator.of(context)
