@@ -182,9 +182,11 @@ class _LostFoundFormState extends State<LostFoundForm> {
           if(savingToDB==true) return;
           savingToDB=true;
           dbSavingController.sink.add(true);
+          print(userEmail);
+          print(username);
           if(widget.category=="Lost"){
             var res = await http.post(
-                Uri.parse("https://swc.iitg.ac.in/onestopapi/post_lost"),
+                Uri.parse("https://swc.iitg.ac.in/onestopapi/lost"),
               body: {
                 'title': title!.trim(),
                 'description' : description!.trim(),
@@ -212,7 +214,7 @@ class _LostFoundFormState extends State<LostFoundForm> {
           }
           else{
             var res = await http.post(
-                Uri.parse("https://swc.iitg.ac.in/onestopapi/post_found"),
+                Uri.parse("https://swc.iitg.ac.in/onestopapi/found"),
                 body: {
                   'title': title!,
                   'description' : description!,

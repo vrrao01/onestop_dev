@@ -29,11 +29,12 @@ class LostFoundHome extends StatefulWidget {
 class _LostFoundHomeState extends State<LostFoundHome> {
 
   StreamController selectedTypeController = StreamController();
+  final globalKey = GlobalKey<ScaffoldState>();
 
   
   Future<List> getLostItems() async {
     print("before");
-    var res = await http.get(Uri.parse('https://swc.iitg.ac.in/onestopapi/all_lost'));
+    var res = await http.get(Uri.parse('https://swc.iitg.ac.in/onestopapi/lost'));
     print("after");
     var lostItemsDetails = jsonDecode(res.body);
     print("decoded json");
@@ -42,7 +43,7 @@ class _LostFoundHomeState extends State<LostFoundHome> {
 
   Future<List> getFoundItems() async {
     print("before");
-    var res = await http.get(Uri.parse('https://swc.iitg.ac.in/onestopapi/all_found'));
+    var res = await http.get(Uri.parse('https://swc.iitg.ac.in/onestopapi/found'));
     print("after");
     var foundItemsDetails = jsonDecode(res.body);
     print("decoded json");
@@ -53,6 +54,7 @@ class _LostFoundHomeState extends State<LostFoundHome> {
   Widget build(BuildContext context) {
     Stream typeStream = selectedTypeController.stream.asBroadcastStream();
     return Scaffold(
+      key: globalKey,
       appBar: AppBar(
         backgroundColor: kBlueGrey,
         title: Text(
@@ -86,7 +88,7 @@ class _LostFoundHomeState extends State<LostFoundHome> {
                     lostItems.add(LostItemTile(currentLostModel: LostModel.fromJson(e)))
                   });
                   foundsSnapshot.data!.forEach((e) => {
-                    foundItems.add(FoundItemTile(currentFoundModel: FoundModel.fromJson(e)))
+                    foundItems.add(FoundItemTile(currentFoundModel: FoundModel.fromJson(e),homeKey: globalKey))
                   });
                   return StreamBuilder(
                     stream: typeStream,

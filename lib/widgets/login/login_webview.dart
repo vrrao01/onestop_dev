@@ -34,11 +34,24 @@ class LoginWebView extends StatelessWidget {
           String check = "";
           int count=1;
 
-          List<String> values = userInfoString.split("/");
-          userInfo["displayName"] = values[0];
+          List<String> values = userInfoString.substring(1,userInfoString.length-1).split("/");
+          var capName = values[0];
+          userInfo["displayName"] = "";
           userInfo["mail"] = values[1];
           userInfo["surname"] = values[2];
           userInfo["id"]=values[3];
+          print(userInfo["id"]);
+          print(capName);
+          for(int i=0;i<capName.length;i++){
+            print(i);
+            if(i>0 && capName[i-1]!=' '){
+              userInfo["displayName"] = userInfo["displayName"] + capName[i].toLowerCase();
+            }
+            else{
+              userInfo["displayName"] = userInfo["displayName"] + capName[i];
+            }
+          }
+          print(userInfo["displayName"]);
           SharedPreferences user = await SharedPreferences.getInstance();
           context
               .read<LoginStore>()

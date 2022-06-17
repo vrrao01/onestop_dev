@@ -1,11 +1,19 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:onestop_dev/globals/my_colors.dart';
 import 'package:onestop_dev/globals/my_fonts.dart';
 import 'package:onestop_dev/models/lostfound/lost_model.dart';
+import 'package:onestop_dev/pages/home/home.dart';
+import 'package:onestop_dev/pages/lost_found/lnf_home.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:onestop_dev/stores/login_store.dart';
 class ProgressBar extends StatelessWidget {
   final int blue;
   final int grey;
@@ -296,18 +304,20 @@ class LostItemTile extends StatelessWidget {
 
 
 class FoundItemTile extends StatelessWidget {
+  final GlobalKey homeKey;
   final currentFoundModel;
-  const FoundItemTile({Key? key,required this.currentFoundModel});
+  FoundItemTile({Key? key,required this.currentFoundModel,required this.homeKey});
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
+    bool buttonPressed = false;
     Duration passedDuration = DateTime.now().difference(currentFoundModel.date);
     String timeagoString = timeago.format(DateTime.now().subtract(passedDuration));
 
     void detailsDialogBox(String imageURL, String description, String location,String submitted, DateTime date) {
-      showDialog(context: context, builder: (BuildContext context) {
+      showDialog(context: context, builder: (BuildContext dialogContext) {
         return Dialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(21),),
           insetPadding: EdgeInsets.symmetric(horizontal: 15),
@@ -340,14 +350,130 @@ class FoundItemTile extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          child: Text(
-                            currentFoundModel.title,
-                            style: MyFonts.med6.size(16).setColor(kWhite),
+                        ConstrainedBox(
+                          constraints: BoxConstraints(maxWidth: screenWidth*0.6-20),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: Text(
+                              currentFoundModel.title,
+                              style: MyFonts.med6.size(16).setColor(kWhite),
+                            ),
                           ),
                         ),
+                        Visibility(
+                          visible: currentFoundModel.claimed==true ? false : true,
+                          child: GestureDetector(
+                            onTap: () async {
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext claimDialogContext){
+                                    return AlertDialog(
+                                        title: Text("Are you sure to claim this item ?"),
+                                        content : ConstrainedBox(
+                                          constraints: BoxConstraints(maxHeight: screenHeight*0.3),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              GestureDetector(
+                                                onTap: () async {
+                                                  print(buttonPressed);
+                                                  if(buttonPressed==true) return;
+                                                  buttonPressed=true;
+                                                  var name = context.read<LoginStore>().userData['name'];
+                                                  var email = context.read<LoginStore>().userData['email'];
+                                                  print(name);
+                                                  print(email);
+                                                  var res = await http.post(
+                                                      Uri.parse("https://swc.iitg.ac.in/onestopapi/found/claim"),
+                                                      body: {
+                                                        "id" : currentFoundModel.id,
+                                                        "claimerEmail" : email,
+                                                        "claimerName" : name
+                                                      }
+                                                  );
+                                                  var body = jsonDecode(res.body);
+                                                  print(body);
+                                                  if(body["saved"] == false){
+                                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(body["message"])));
+                                                    Navigator.popUntil(context,ModalRoute.withName(LostFoundHome.id));
+                                                  }
+                                                  else{
+                                                    ScaffoldMessenger.of(homeKey.currentContext!).showSnackBar(SnackBar(content: Text("Claimed Item Successfully")));
+                                                    Navigator.popUntil(context, ModalRoute.withName(HomePage.id));
+                                                  }
+                                                },
+                                                child: Container(
+                                                  child: Text(
+                                                    "YES",
+                                                    style: MyFonts.med6.size(17),
+                                                  ),
+                                                ),
+                                              ),
+                                              Container(
+                                                width: 2.5,
+                                                height: 14,
+                                                color: kBlack,
+                                              ),
+                                              GestureDetector(
+                                                onTap: (){
+                                                  if(buttonPressed==true) return;
+                                                  buttonPressed=true;
+                                                  Navigator.pop(context);
+                                                },
+                                                child: Container(
+                                                  child: Text(
+                                                    "NO",
+                                                    style: MyFonts.med6.size(17),
+                                                  ),
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        )
+                                    );
+                                  }
+                              );
+                            },
+                            child: Container(
+                                padding: EdgeInsets.symmetric(horizontal: 12,vertical: 8),
+                                margin: EdgeInsets.only(right: 8),
+                                decoration: BoxDecoration(
+                                    color: kGrey9,
+                                    borderRadius: BorderRadius.circular(24)
+                                ),
+                                alignment: Alignment.center,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+
+                                  children: [
+                                    Icon(Icons.pan_tool,size: 11,color: lBlue2,),
+                                    Text(
+                                      " Claim",
+                                      style: MyFonts.medium.size(11).setColor(lBlue2),
+                                    )
+                                  ],
+                                )
+                            ),
+                          ),
+                        )
                       ],
+                    ),
+                  ),
+                  Visibility(
+                    visible: currentFoundModel.claimed==true ? true : false,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(maxWidth: screenWidth-62),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Text(
+                            "Claimed by: " + currentFoundModel.claimerName + " / " + currentFoundModel.claimerEmail,
+                            style: MyFonts.medium.size(14).setColor(kGrey6),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                   Padding(
@@ -395,90 +521,90 @@ class FoundItemTile extends StatelessWidget {
     }
 
     return GestureDetector(
-      onTap: (){
-        detailsDialogBox(currentFoundModel.imageURL, currentFoundModel.description, currentFoundModel.location,currentFoundModel.submittedat,currentFoundModel.date);
-      },
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 15,vertical: 4),
-        decoration: BoxDecoration(
-            color: kBlueGrey,
-            borderRadius: BorderRadius.circular(21)
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: 194),
-              child: Padding(
-                padding: const EdgeInsets.only(left: 16,right: 10),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      margin: EdgeInsets.only(top: 16,bottom: 5),
-                      child: Text(
-                        currentFoundModel.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: MyFonts.medium.size(16).setColor(kWhite),
+        onTap: (){
+          detailsDialogBox(currentFoundModel.imageURL, currentFoundModel.description, currentFoundModel.location,currentFoundModel.submittedat,currentFoundModel.date);
+        },
+        child: Container(
+          margin: EdgeInsets.symmetric(horizontal: 15,vertical: 4),
+          decoration: BoxDecoration(
+              color: kBlueGrey,
+              borderRadius: BorderRadius.circular(21)
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: 194),
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 16,right: 10),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        margin: EdgeInsets.only(top: 16,bottom: 5),
+                        child: Text(
+                          currentFoundModel.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: MyFonts.medium.size(16).setColor(kWhite),
+                        ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Text(
-                        "Found at: " + currentFoundModel.location,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: MyFonts.light.size(14).setColor(kWhite),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Text(
+                          "Found at: " + currentFoundModel.location,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: MyFonts.light.size(14).setColor(kWhite),
+                        ),
                       ),
-                    ),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 13,vertical: 2.5),
-                      margin: EdgeInsets.only(bottom: 16),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 13,vertical: 2.5),
+                        margin: EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                            color: kGrey9,
+                            borderRadius: BorderRadius.circular(41)
+                        ),
+                        child: Text(
+                          timeagoString,
+                          style: MyFonts.medium.size(12).setColor(lBlue2),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: 105,maxWidth: 135),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.only(topRight: Radius.circular(21),bottomRight: Radius.circular(21)),
+                  child: CachedNetworkImage(
+                    imageUrl: currentFoundModel.compressedImageURL,
+                    imageBuilder: (context, imageProvider) => Container(
+                      alignment: Alignment.center,
+                      width: screenWidth*0.35,
                       decoration: BoxDecoration(
-                          color: kGrey9,
-                          borderRadius: BorderRadius.circular(41)
-                      ),
-                      child: Text(
-                        timeagoString,
-                        style: MyFonts.medium.size(12).setColor(lBlue2),
+                        image: DecorationImage(
+                          image: imageProvider,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-            ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: 105,maxWidth: 135),
-              child: ClipRRect(
-                borderRadius: BorderRadius.only(topRight: Radius.circular(21),bottomRight: Radius.circular(21)),
-                child: CachedNetworkImage(
-                  imageUrl: currentFoundModel.compressedImageURL,
-                  imageBuilder: (context, imageProvider) => Container(
-                    alignment: Alignment.center,
-                    width: screenWidth*0.35,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: imageProvider,
-                        fit: BoxFit.cover,
-                      ),
+                    placeholder: (context, url) => Container(
+                      alignment: Alignment.center,
+                      width: screenWidth*0.35,
+                      child: Text("Loading...",style: MyFonts.medium.size(14).setColor(kGrey9)),
                     ),
+                    errorWidget: (context, url, error) => Center(child: Icon(Icons.error),),
                   ),
-                  placeholder: (context, url) => Container(
-                    alignment: Alignment.center,
-                    width: screenWidth*0.35,
-                    child: Text("Loading...",style: MyFonts.medium.size(14).setColor(kGrey9)),
-                  ),
-                  errorWidget: (context, url, error) => Center(child: Icon(Icons.error),),
                 ),
-              ),
-            )
-          ],
+              )
+            ],
+          ),
         ),
-      ),
-    );
+      );
   }
 }
 
