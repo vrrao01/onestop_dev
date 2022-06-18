@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
+import 'package:onestop_dev/functions/timetable/Functions.dart';
 import 'package:onestop_dev/globals/my_fonts.dart';
 import 'package:onestop_dev/models/timetable.dart';
 import 'package:onestop_dev/services/api.dart';
@@ -239,6 +240,13 @@ abstract class _TimetableStore with Store {
     this.allTimetableCourses = timetableCourses;
   }
 
+  @observable
+  bool isHomePage = true;
+
+  @action
+  void changePage(bool i){
+    isHomePage=i;
+  }
   @computed
   List<Widget> get todayTimeTable {
     int timetableIndex = dates[selectedDate].weekday - 1;
@@ -248,11 +256,50 @@ abstract class _TimetableStore with Store {
           .map((e) => TimetableTile(course: e))
           .toList(),
       LunchDivider(),
-      ...allTimetableCourses[timetableIndex]
-          .afternoon
-          .map((e) => TimetableTile(course: e))
-          .toList()
+      if (!isHomePage)
+        ...allTimetableCourses[timetableIndex]
+            .morning
+            .map((e) => TimetableTile(course: e))
+            .toList(),
     ];
     return l;
+  }
+
+  @computed
+  CourseModel get selectedCourseforHome {
+    DateTime now = DateTime.now();
+    String sel = determiningSel();
+    CourseModel no_class = new CourseModel();
+    no_class.instructor = ' ';
+    no_class.course = 'No Class Right Now';
+    no_class.timing = ' ';
+    bool flag = false;
+    if (now.weekday == 6 ||
+        now.weekday == 7 ||
+        (now.weekday == 5 && now.hour >= 18)) {
+      return this.allTimetableCourses[0].morning[0];
+    } else if (now.weekday < 5 && now.hour >= 18) {
+      return (this.allTimetableCourses[now.weekday + 1].morning[0] != null)
+          ? this.allTimetableCourses[now.weekday + 1].morning[0]
+          : this.allTimetableCourses[now.weekday + 1].afternoon[0];
+    } else if (now.weekday < 5 && now.hour <= 12) {
+      for (var course in this.allTimetableCourses[now.weekday + 1].morning) {
+        if (course.timing == sel)
+          return course;
+        else
+          flag = true;
+      }
+    } else if ((now.weekday < 5 && now.hour >= 14) || flag == true) {
+      if (flag == true) {
+        flag = false;
+        return (this.allTimetableCourses[now.weekday + 1].afternoon[0] != null)
+            ? this.allTimetableCourses[now.weekday + 1].afternoon[0]
+            : no_class;
+      }
+      for (var course in this.allTimetableCourses[now.weekday + 1].afternoon) {
+        if (course.timing == sel) return course;
+      }
+    }
+    return no_class;
   }
 }

@@ -1,27 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:intl/intl.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
-import 'package:maps_launcher/maps_launcher.dart';
-import 'package:onestop_dev/globals.dart';
-
+import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:onestop_dev/functions/mapbox/helper.dart';
+import 'package:onestop_dev/functions/mapbox/shared_prefs.dart';
+import 'package:onestop_dev/main.dart';
+import 'package:onestop_dev/pages/travel/data.dart';
+import 'package:onestop_dev/stores/mapbox_store.dart';
+import 'package:onestop_dev/widgets/mapbox/carousel_card.dart';
+import 'package:provider/provider.dart';
 import '../globals/my_colors.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class MapBox extends StatefulWidget {
-  Function? rebuildParent;
-  double? lat, long;
-  int? selectedIndex;
-  final bool istravel;
-
-  MapBox(
-      {Key? key,
-      this.lat,
-      this.long,
-      this.selectedIndex,
-      this.rebuildParent,
-      required this.istravel})
-      : super(key: key);
+  MapBox({Key? key}) : super(key: key);
 
   @override
   State<MapBox> createState() => _MapBoxState();
@@ -32,296 +25,268 @@ DateTime now = DateTime.now();
 String formattedTime = DateFormat.jm().format(now);
 
 class _MapBoxState extends State<MapBox> {
-  final MapController _mapController = MapController();
-  bool mapToggle = true;
-  final myToken =
-      'pk.eyJ1IjoibGVhbmQ5NjYiLCJhIjoiY2t1cmpreDdtMG5hazJvcGp5YzNxa3VubyJ9.laphl_yeaw_9SUbcebw9Rg';
   final pointIcon = 'assets/images/pointicon.png';
   final busIcon = 'assets/images/busicon.png';
+
   late LatLng myPos = LatLng(-37.327154, -59.119667);
-  double zoom = 13.0;
-  List<LatLng> latlngList = [];
+  late CameraPosition _initialCameraPosition;
+  late MapboxMapController controller;
+  late List<CameraPosition> _kBusStopsList;
+
+  // Carousel related
+  List<Map> bus_carousel_data = [];
+  int page_index = 0;
+  bool accessed = false;
+  late List<Widget> bus_carousel_items;
 
   void initState() {
     super.initState();
-    _getLoctaion();
+    _initialCameraPosition = CameraPosition(target: myPos, zoom: 15);
+    _initialiseCarouselforBuses();
+  }
+
+  _initialiseCarouselforBuses(){
+    for (int index = 0; index < BusStops.length; index++) {
+      num distance = getDistanceFromSharedPrefs(index) / 1000;
+      num duration = getDurationFromSharedPrefs(index) / 60;
+      bus_carousel_data
+          .add({'index': index, 'distance': distance, 'duration': duration});
+    }
+    bus_carousel_data.sort((a, b) => a['duration'] < b['duration'] ? 0 : 1);
+
+    // Generate the list of carousel widgets
+    bus_carousel_items = List<Widget>.generate(
+        BusStops.length,
+            (index) => carouselCard(
+            bus_carousel_data[index]['index'],
+            bus_carousel_data[index]['distance'],
+            bus_carousel_data[index]['duration']));
+
+    // initialize map symbols in the same order as carousel widgets
+    _kBusStopsList = List<CameraPosition>.generate(
+        BusStops.length,
+            (index) => CameraPosition(
+            target: getLatLngFromRestaurantData(bus_carousel_data[index]['index']),
+            zoom: 15));
+  }
+  _addSourceAndLineLayer(int index, bool removeLayer) async {
+    // Can animate camera to focus on the item
+    controller
+        .animateCamera(CameraUpdate.newCameraPosition(_kBusStopsList[index]));
+
+    // Add a polyLine between source and destination
+    Map geometry = getGeometryFromSharedPrefs(bus_carousel_data[index]['index']);
+    final _fills = {
+      "type": "FeatureCollection",
+      "features": [
+        {
+          "type": "Feature",
+          "id": 0,
+          "properties": <String, dynamic>{},
+          "geometry": geometry,
+        },
+      ],
+    };
+
+    // Remove lineLayer and source if it exists
+    if (removeLayer == true) {
+      await controller.removeLayer("lines");
+      await controller.removeSource("fills");
+    }
+
+    // Add new source and lineLayer
+    await controller.addSource("fills", GeojsonSourceProperties(data: _fills));
+    await controller.addLineLayer(
+      "fills",
+      "lines",
+      LineLayerProperties(
+        lineColor: Colors.green.toHexStringRGB(),
+        lineCap: "round",
+        lineJoin: "round",
+        lineWidth: 2,
+      ),
+    );
+  }
+
+  _onMapCreated(MapboxMapController controller) async {
+    this.controller = controller;
+  }
+
+  _onStyleLoadedCallback() async {
+    for (CameraPosition _kBusStop in _kBusStopsList) {
+      await controller.addSymbol(
+        SymbolOptions(
+          geometry: _kBusStop.target,
+          iconSize: 0.2,
+          iconImage: busIcon,
+        ),
+      );
+    }
+    _addSourceAndLineLayer(0, false);
   }
 
   @override
   Widget build(BuildContext context) {
-    Future.delayed(Duration(seconds: 10), _getLoctaion);
-    return ClipRRect(
-      borderRadius: BorderRadius.all(Radius.circular(20)),
-      child: Stack(
-        children: [
-          Container(
-            height: 365,
-            // width: 350,
-            child: FlutterMap(
-              mapController: _mapController,
-              options: MapOptions(
-                center: myPos,
-                zoom: zoom,
+    Future.delayed(Duration(minutes: 1), _getLoctaion);
+    return Observer(builder: (context) {
+      int selectedIndex = context.read<MapBoxStore>().index;
+      return ClipRRect(
+        borderRadius: BorderRadius.all(Radius.circular(20)),
+        child: Stack(
+          children: [
+            Container(
+              height: 365,
+              // width: 350,
+              child: MapboxMap(
+                accessToken: dotenv.env['MAPBOX_ACCESS_TOKEN'],
+                initialCameraPosition: _initialCameraPosition,
+                onMapCreated: _onMapCreated,
+                onStyleLoadedCallback: _onStyleLoadedCallback,
+                myLocationEnabled: true,
+                myLocationTrackingMode: MyLocationTrackingMode.TrackingGPS,
+                minMaxZoomPreference: const MinMaxZoomPreference(14, 17),
               ),
-              nonRotatedLayers: [
-                TileLayerOptions(
-                  backgroundColor: kBlack,
-                  urlTemplate:
-                      'https://api.mapbox.com/styles/v1/mapbox/dark-v10/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoibGVhbmQ5NjYiLCJhIjoiY2t1cmpreDdtMG5hazJvcGp5YzNxa3VubyJ9.laphl_yeaw_9SUbcebw9Rg',
-                  additionalOptions: {
-                    'accessToken': myToken,
-                    'id': 'mapbox/light-v10',
-                  },
-                ),
-                MarkerLayerOptions(
-                  markers: markers,
-                ),
-                PolylineLayerOptions(polylines: [
-                  Polyline(
-                    points: [
-                      LatLng(lat, long),
-                      (widget.lat != null && widget.lat != null)
-                          ? LatLng(widget.lat!, widget.long!)
-                          : LatLng(lat, long),
-                    ],
-                    // isDotted: true,
-                    color: Color(0xFF669DF6),
-                    strokeWidth: 3.0,
-                    borderColor: Color(0xFF1967D2),
-                    borderStrokeWidth: 0.1,
-                  )
-                ])
-              ],
             ),
-          ),
-          Positioned(
-            left: 16,
-            top: 16,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                TextButton(
-                  onPressed: () {
-                    widget.rebuildParent!(0);
-                  },
-                  //padding: EdgeInsets.only(left: 10),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(40),
-                    ),
-                    child: Container(
-                      height: 32,
-                      width: 83,
-                      color: (widget.selectedIndex == 0) ? lBlue2 : kBlueGrey,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            IconData(0xe1d5, fontFamily: 'MaterialIcons'),
-                            color: (widget.selectedIndex == 0)
-                                ? kBlueGrey
-                                : kWhite,
-                          ),
-                          Text(
-                            "Bus",
-                            style: TextStyle(
-                              color: (widget.selectedIndex == 0)
-                                  ? kBlueGrey
-                                  : kWhite,
+            Positioned(
+              left: 16,
+              top: 16,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      context.read<MapBoxStore>().setIndexMapBox(0);
+                    },
+                    //padding: EdgeInsets.only(left: 10),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(40),
+                      ),
+                      child: Container(
+                        height: 32,
+                        width: 83,
+                        color: (selectedIndex == 0) ? lBlue2 : kBlueGrey,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              IconData(0xe1d5, fontFamily: 'MaterialIcons'),
+                              color: (selectedIndex == 0) ? kBlueGrey : kWhite,
                             ),
-                          ),
-                        ],
+                            Text(
+                              "Bus",
+                              style: TextStyle(
+                                color:
+                                    (selectedIndex == 0) ? kBlueGrey : kWhite,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      widget.rebuildParent!(1);
-                    });
-                  },
-                  //padding: EdgeInsets.only(left: 10),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(40),
-                    ),
-                    child: Container(
-                      height: 32,
-                      width: 83,
-                      color: (widget.selectedIndex == 1) ? lBlue2 : kBlueGrey,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            IconData(0xefc2, fontFamily: 'MaterialIcons'),
-                            color: (widget.selectedIndex == 1)
-                                ? kBlueGrey
-                                : kWhite,
-                          ),
-                          Text(
-                            "Ferry",
-                            style: TextStyle(
-                              color: (widget.selectedIndex == 1)
-                                  ? kBlueGrey
-                                  : kWhite,
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        context.read<MapBoxStore>().setIndexMapBox(1);
+                      });
+                    },
+                    //padding: EdgeInsets.only(left: 10),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(40),
+                      ),
+                      child: Container(
+                        height: 32,
+                        width: 83,
+                        color: (selectedIndex == 1) ? lBlue2 : kBlueGrey,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              IconData(0xefc2, fontFamily: 'MaterialIcons'),
+                              color: (selectedIndex == 1) ? kBlueGrey : kWhite,
                             ),
-                          ),
-                        ],
+                            Text(
+                              "Ferry",
+                              style: TextStyle(
+                                color:
+                                    (selectedIndex == 1) ? kBlueGrey : kWhite,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                (widget.istravel)
-                    ? TextButton(
-                        onPressed: () {
-                          setState(() {
-                            widget.rebuildParent!(2);
-                          });
-                        },
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(40),
-                          ),
-                          child: Container(
-                            height: 32,
-                            width: 83,
-                            color: (widget.selectedIndex == 2)
-                                ? lBlue2
-                                : kBlueGrey,
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.bus_alert,
-                                  color: (widget.selectedIndex == 2)
-                                      ? kBlueGrey
-                                      : kWhite,
-                                ),
-                                Text(
-                                  "Food",
-                                  style: TextStyle(
-                                    color: (widget.selectedIndex == 2)
+                  (context.read<MapBoxStore>().isTravelPage)
+                      ? TextButton(
+                          onPressed: () {
+                            setState(() {
+                              context.read<MapBoxStore>().setIndexMapBox(2);
+                            });
+                          },
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(40),
+                            ),
+                            child: Container(
+                              height: 32,
+                              width: 83,
+                              color: (selectedIndex == 2) ? lBlue2 : kBlueGrey,
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.bus_alert,
+                                    color: (selectedIndex == 2)
                                         ? kBlueGrey
                                         : kWhite,
                                   ),
-                                ),
-                              ],
+                                  Text(
+                                    "Food",
+                                    style: TextStyle(
+                                      color: (selectedIndex == 2)
+                                          ? kBlueGrey
+                                          : kWhite,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      )
-                    : SizedBox(),
-              ],
+                        )
+                      : SizedBox(),
+                ],
+              ),
             ),
-          ),
-          Positioned(
-            bottom: 10,
-            right: 10,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0, top: 8, bottom: 8),
-                  child: FloatingActionButton(
-                    heroTag: null,
-                    onPressed: () {
-                      MapsLauncher.launchCoordinates(
-                          (widget.lat != null) ? widget.lat! : lat,
-                          (widget.long != null) ? widget.long! : long);
-                    },
-                    child: Icon(Icons.navigate_before_outlined),
-                    mini: true,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8, bottom: 8, right: 4),
-                  child: FloatingActionButton(
-                    heroTag: null,
-                    onPressed: () {
-                      _mapController.moveAndRotate(LatLng(lat, long), 15, 17);
-                    },
-                    child: Icon(Icons.my_location),
-                    mini: true,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    });
   }
 
   Location location = new Location();
   LocationData? _locationData;
   double lat = 0;
   double long = 0;
-  List<Marker> markers = [];
+
   Future<dynamic> _getLoctaion() async {
     bool _serviceEnabled;
     PermissionStatus _permissionGranted;
-
     _serviceEnabled = await location.serviceEnabled();
     if (!_serviceEnabled) {
-      _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
-        return;
-      }
+      return;
     }
     _permissionGranted = await location.hasPermission();
     if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
-        return;
-      }
-    }
-    _locationData = await location.getLocation();
-    _addMarker(
-        _locationData!.latitude!,
-        _locationData!.longitude!,
-        (widget.lat != null) ? widget.lat! : lat,
-        (widget.long != null) ? widget.long! : long);
-    setState(() {
-      lat = _locationData!.latitude!;
-      long = _locationData!.longitude!;
-      userlat = _locationData!.latitude!;
-      userlong = _locationData!.longitude!;
-      mapToggle = true;
-    });
-    _mapController.moveAndRotate(LatLng(userlat, userlong), 15, 17);
-  }
-
-  void _addMarker(double userlat, double userlong, double lat, double long) {
-    Marker? marker;
-    if (userlat == lat) {
-      marker = Marker(
-        point: LatLng(userlat, userlong),
-        width: 25.0,
-        height: 25.0,
-        builder: (ctx) => Container(
-          child: Image.asset(pointIcon),
-        ),
-      );
       return;
     }
-    Marker marker2 = Marker(
-      point: LatLng(lat, long),
-      width: 25.0,
-      height: 25.0,
-      builder: (ctx) => Container(
-        child: Image.asset(busIcon),
-      ),
-    );
-
-    setState(() {
-      markers.clear();
-      markers.add(marker!);
-      markers.add(marker2);
-    });
+    _locationData = await location.getLocation();
+    sharedPreferences.setDouble('latitude', _locationData!.latitude!);
+    sharedPreferences.setDouble('longitude', _locationData!.longitude!);
   }
 }

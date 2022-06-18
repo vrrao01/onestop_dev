@@ -37,6 +37,13 @@ mixin _$TimetableStore on _TimetableStore, Store {
           Computed<List<Widget>>(() => super.todayTimeTable,
               name: '_TimetableStore.todayTimeTable'))
       .value;
+  Computed<CourseModel>? _$selectedCourseforHomeComputed;
+
+  @override
+  CourseModel get selectedCourseforHome => (_$selectedCourseforHomeComputed ??=
+          Computed<CourseModel>(() => super.selectedCourseforHome,
+              name: '_TimetableStore.selectedCourseforHome'))
+      .value;
 
   late final _$loadOperationAtom =
       Atom(name: '_TimetableStore.loadOperation', context: context);
@@ -70,6 +77,22 @@ mixin _$TimetableStore on _TimetableStore, Store {
     });
   }
 
+  late final _$isHomePageAtom =
+      Atom(name: '_TimetableStore.isHomePage', context: context);
+
+  @override
+  bool get isHomePage {
+    _$isHomePageAtom.reportRead();
+    return super.isHomePage;
+  }
+
+  @override
+  set isHomePage(bool value) {
+    _$isHomePageAtom.reportWrite(value, super.isHomePage, () {
+      super.isHomePage = value;
+    });
+  }
+
   late final _$setTimetableAsyncAction =
       AsyncAction('_TimetableStore.setTimetable', context: context);
 
@@ -93,14 +116,27 @@ mixin _$TimetableStore on _TimetableStore, Store {
   }
 
   @override
+  void changePage(bool i) {
+    final _$actionInfo = _$_TimetableStoreActionController.startAction(
+        name: '_TimetableStore.changePage');
+    try {
+      return super.changePage(i);
+    } finally {
+      _$_TimetableStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 loadOperation: ${loadOperation},
 selectedDate: ${selectedDate},
+isHomePage: ${isHomePage},
 coursesLoaded: ${coursesLoaded},
 coursesLoading: ${coursesLoading},
 coursesError: ${coursesError},
-todayTimeTable: ${todayTimeTable}
+todayTimeTable: ${todayTimeTable},
+selectedCourseforHome: ${selectedCourseforHome}
     ''';
   }
 }

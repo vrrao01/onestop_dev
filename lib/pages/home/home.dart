@@ -1,6 +1,7 @@
 import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:onestop_dev/functions/home/action_button.dart';
+import 'package:onestop_dev/functions/home/initialising_save_data.dart';
 import 'package:onestop_dev/functions/home/navigation_icons.dart';
 import 'package:onestop_dev/functions/timetable/show_dialog.dart';
 import 'package:onestop_dev/globals/my_colors.dart';
@@ -23,6 +24,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
+  void initState(){
+    initializeLocationAndSave();
+  }
   int index = 0;
   final tabs = [
     HomeTab(),

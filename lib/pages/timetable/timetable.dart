@@ -1,14 +1,7 @@
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:onestop_dev/globals.dart';
-import 'package:onestop_dev/pages/timetable/ApiCallingTimetable.dart';
 import 'package:flutter/material.dart';
-import 'package:onestop_dev/globals/my_fonts.dart';
-import 'package:onestop_dev/models/timetable.dart';
-import 'package:onestop_dev/functions/timetable/Functions.dart';
 import 'package:onestop_dev/stores/timetable_store.dart';
 import 'package:onestop_dev/widgets/timetable/dateSlider.dart';
-import 'package:onestop_dev/widgets/timetable/timeTableBuilder.dart';
-import 'package:onestop_dev/stores/login_store.dart';
 import 'package:provider/provider.dart';
 
 class TimeTableTab extends StatefulWidget {
@@ -19,14 +12,9 @@ class TimeTableTab extends StatefulWidget {
 }
 
 class _TimeTableTabState extends State<TimeTableTab> {
-  int select = 0;
-  String sel = "";
-  List<Map<int, List<List<String>>>> Data1 = [];
   @override
   Widget build(BuildContext context) {
     print("Rebuild timetable.dart");
-    sel = determiningSel();
-    //adjustTime();
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -39,6 +27,7 @@ class _TimeTableTabState extends State<TimeTableTab> {
           ),
           Observer(
             builder: (context) {
+              context.read<TimetableStore>().changePage(false);
               return ListView.builder(
                   shrinkWrap: true,
                   physics: ClampingScrollPhysics(),
@@ -47,35 +36,6 @@ class _TimeTableTabState extends State<TimeTableTab> {
                       context.read<TimetableStore>().todayTimeTable[index]);
             }
           ),
-
-          // TimeTableSlider(),
-          // SizedBox(
-          //   height: 2,
-          // ),
-          // Row(children: <Widget>[
-          //   Expanded(
-          //       child: Divider(
-          //     color: Colors.white,
-          //   )),
-          //   Padding(
-          //     padding: const EdgeInsets.all(4.0),
-          //     child: Text(
-          //       'Lunch Break',
-          //       style: MyFonts.w500.size(12).setColor(Colors.white),
-          //     ),
-          //   ),
-          //   Expanded(
-          //       child: Divider(
-          //     color: Colors.white,
-          //   )),
-          // ]),
-          // SizedBox(
-          //   height: 2,
-          // ),
-          // TimeTableSlider(),
-          // SizedBox(
-          //   height: 10,
-          // ),
         ],
       ),
     );
