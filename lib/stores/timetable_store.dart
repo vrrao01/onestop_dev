@@ -74,6 +74,7 @@ abstract class _TimetableStore with Store {
   List<TimetableDay> allTimetableCourses =
       List.generate(5, (index) => new TimetableDay());
 
+  @action
   void processTimetable() {
     print("start process");
     List<TimetableDay> timetableCourses =
@@ -244,9 +245,10 @@ abstract class _TimetableStore with Store {
   bool isHomePage = true;
 
   @action
-  void changePage(bool i){
-    isHomePage=i;
+  void changePage(bool i) {
+    isHomePage = i;
   }
+
   @computed
   List<Widget> get todayTimeTable {
     int timetableIndex = dates[selectedDate].weekday - 1;
@@ -256,11 +258,10 @@ abstract class _TimetableStore with Store {
           .map((e) => TimetableTile(course: e))
           .toList(),
       LunchDivider(),
-      if (!isHomePage)
-        ...allTimetableCourses[timetableIndex]
-            .morning
-            .map((e) => TimetableTile(course: e))
-            .toList(),
+      if(this.isHomePage)...allTimetableCourses[timetableIndex]
+          .morning
+          .map((e) => TimetableTile(course: e))
+          .toList(),
     ];
     return l;
   }

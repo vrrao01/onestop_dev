@@ -9,6 +9,22 @@ part of 'mapbox_store.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
 mixin _$MapBoxStore on _MapBoxStore, Store {
+  Computed<List<Widget>>? _$buses_carouselComputed;
+
+  @override
+  List<Widget> get buses_carousel => (_$buses_carouselComputed ??=
+          Computed<List<Widget>>(() => super.buses_carousel,
+              name: '_MapBoxStore.buses_carousel'))
+      .value;
+  Computed<List<CameraPosition>>? _$bus_camera_positionsComputed;
+
+  @override
+  List<CameraPosition> get bus_camera_positions =>
+      (_$bus_camera_positionsComputed ??= Computed<List<CameraPosition>>(
+              () => super.bus_camera_positions,
+              name: '_MapBoxStore.bus_camera_positions'))
+          .value;
+
   late final _$indexAtom = Atom(name: '_MapBoxStore.index', context: context);
 
   @override
@@ -72,9 +88,44 @@ mixin _$MapBoxStore on _MapBoxStore, Store {
   }
 
   @override
+  void set_distance_buses(int i, int distance) {
+    final _$actionInfo = _$_MapBoxStoreActionController.startAction(
+        name: '_MapBoxStore.set_distance_buses');
+    try {
+      return super.set_distance_buses(i, distance);
+    } finally {
+      _$_MapBoxStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void set_duration_buses(int i, int time) {
+    final _$actionInfo = _$_MapBoxStoreActionController.startAction(
+        name: '_MapBoxStore.set_duration_buses');
+    try {
+      return super.set_duration_buses(i, time);
+    } finally {
+      _$_MapBoxStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void initialiseCarouselforBuses() {
+    final _$actionInfo = _$_MapBoxStoreActionController.startAction(
+        name: '_MapBoxStore.initialiseCarouselforBuses');
+    try {
+      return super.initialiseCarouselforBuses();
+    } finally {
+      _$_MapBoxStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
-index: ${index}
+index: ${index},
+buses_carousel: ${buses_carousel},
+bus_camera_positions: ${bus_camera_positions}
     ''';
   }
 }

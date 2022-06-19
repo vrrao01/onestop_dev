@@ -116,6 +116,17 @@ mixin _$TimetableStore on _TimetableStore, Store {
   }
 
   @override
+  void processTimetable() {
+    final _$actionInfo = _$_TimetableStoreActionController.startAction(
+        name: '_TimetableStore.processTimetable');
+    try {
+      return super.processTimetable();
+    } finally {
+      _$_TimetableStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void changePage(bool i) {
     final _$actionInfo = _$_TimetableStoreActionController.startAction(
         name: '_TimetableStore.changePage');
