@@ -40,22 +40,21 @@ class _MapBoxState extends State<MapBox> {
     Future.delayed(Duration(minutes: 1), _getLoctaion);
     return Observer(builder: (context) {
       int selectedIndex = context.read<MapBoxStore>().index;
-      return Center(
-        child: Container(
-          height: 365,
-          // width: 350,
-          child: MapboxMap(
-            accessToken: dotenv.env['MAPBOX_ACCESS_TOKEN'],
-            initialCameraPosition: _initialCameraPosition,
-            onMapCreated: _onMapCreated,
-            // onStyleLoadedCallback: _onStyleLoadedCallback,
-
-            myLocationEnabled: true,
-            myLocationTrackingMode: MyLocationTrackingMode.Tracking,
-            minMaxZoomPreference: const MinMaxZoomPreference(14, 17),
-            compassViewPosition: CompassViewPosition.TopLeft,
+      return Stack(
+        children: [
+          SizedBox(
+            height: 365,
+            child: MapboxMap(
+              accessToken: dotenv.env['MAPBOX_ACCESS_TOKEN'],
+              initialCameraPosition: _initialCameraPosition,
+              onMapCreated: _onMapCreated,
+              // onStyleLoadedCallback: _onStyleLoadedCallback,
+              myLocationEnabled: true,
+              myLocationTrackingMode: MyLocationTrackingMode.TrackingGPS,
+              minMaxZoomPreference: const MinMaxZoomPreference(14, 17),
+            ),
           ),
-        ),
+        ],
       );
     });
   }

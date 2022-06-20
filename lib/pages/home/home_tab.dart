@@ -50,13 +50,7 @@ class _HomeTabState extends State<HomeTab> {
           SizedBox(
             height: 10,
           ),
-          MapBox(
-            lat: (lat != 0) ? lat : null,
-            long: (long != 0) ? long : null,
-            selectedIndex: selectedIndex,
-            rebuildParent: rebuildParent,
-            istravel: true,
-          ),
+          MapBox(),
           SizedBox(
             height: 10,
           ),

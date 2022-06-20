@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
-import 'package:onestop_dev/functions/timetable/Functions.dart';
+import 'package:onestop_dev/functions/timetable/time_range.dart';
 import 'package:onestop_dev/globals/my_fonts.dart';
 import 'package:onestop_dev/models/timetable.dart';
 import 'package:onestop_dev/services/api.dart';
-import 'package:onestop_dev/widgets/timetable/timeTableBuilder.dart';
-
+import 'package:onestop_dev/widgets/timetable/lunch_divider.dart';
+import 'package:onestop_dev/widgets/timetable/timetable_tile.dart';
 part 'timetable_store.g.dart';
 
 class TimetableStore = _TimetableStore with _$TimetableStore;
@@ -259,7 +259,7 @@ abstract class _TimetableStore with Store {
           .toList(),
       LunchDivider(),
       if(this.isHomePage)...allTimetableCourses[timetableIndex]
-          .morning
+          .afternoon
           .map((e) => TimetableTile(course: e))
           .toList(),
     ];
@@ -269,7 +269,7 @@ abstract class _TimetableStore with Store {
   @computed
   CourseModel get selectedCourseforHome {
     DateTime now = DateTime.now();
-    String sel = determiningSel();
+    String sel = findTimeRange();
     CourseModel no_class = new CourseModel();
     no_class.instructor = ' ';
     no_class.course = 'No Class Right Now';
