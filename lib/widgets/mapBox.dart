@@ -38,25 +38,31 @@ class _MapBoxState extends State<MapBox> {
   @override
   Widget build(BuildContext context) {
     Future.delayed(Duration(minutes: 1), _getLoctaion);
-    return Observer(builder: (context) {
-      int selectedIndex = context.read<MapBoxStore>().index;
-      return Stack(
-        children: [
-          SizedBox(
-            height: 365,
-            child: MapboxMap(
-              accessToken: dotenv.env['MAPBOX_ACCESS_TOKEN'],
-              initialCameraPosition: _initialCameraPosition,
-              onMapCreated: _onMapCreated,
-              // onStyleLoadedCallback: _onStyleLoadedCallback,
-              myLocationEnabled: true,
-              myLocationTrackingMode: MyLocationTrackingMode.TrackingGPS,
-              minMaxZoomPreference: const MinMaxZoomPreference(14, 17),
+    return ClipRRect(
+        borderRadius: BorderRadius.all(
+          Radius.circular(40),
+        ),
+      child: Observer(builder: (context) {
+        int selectedIndex = context.read<MapBoxStore>().index;
+        return Stack(
+          children: [
+            SizedBox(
+              height: 365,
+              child: MapboxMap(
+                accessToken: dotenv.env['MAPBOX_ACCESS_TOKEN'],
+                initialCameraPosition: _initialCameraPosition,
+                onMapCreated: _onMapCreated,
+                styleString: "mapbox://styles/mapbox/dark-v10",
+                // onStyleLoadedCallback: _onStyleLoadedCallback,
+                myLocationEnabled: true,
+                myLocationTrackingMode: MyLocationTrackingMode.TrackingGPS,
+                minMaxZoomPreference: const MinMaxZoomPreference(14, 17),
+              ),
             ),
-          ),
-        ],
-      );
-    });
+          ],
+        );
+      }),
+    );
   }
 
   Location location = new Location();
