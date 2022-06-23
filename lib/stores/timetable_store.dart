@@ -271,26 +271,26 @@ abstract class _TimetableStore with Store {
     DateTime now = DateTime.now();
     String sel = findTimeRange();
     CourseModel no_class = new CourseModel();
-    no_class.instructor = ' ';
+    no_class.instructor = '';
     no_class.course = 'No Class Right Now';
-    no_class.timing = ' ';
+    no_class.timing = '';
     bool flag = false;
     if (now.weekday == 6 ||
         now.weekday == 7 ||
         (now.weekday == 5 && now.hour >= 18)) {
       return this.allTimetableCourses[0].morning[0];
-    } else if (now.weekday < 5 && now.hour >= 18) {
+    } else if (now.weekday < 6 && now.hour >= 18) {
       return (this.allTimetableCourses[now.weekday + 1].morning[0] != null)
           ? this.allTimetableCourses[now.weekday + 1].morning[0]
           : this.allTimetableCourses[now.weekday + 1].afternoon[0];
-    } else if (now.weekday < 5 && now.hour <= 12) {
+    } else if (now.weekday < 6 && now.hour <= 12) {
       for (var course in this.allTimetableCourses[now.weekday + 1].morning) {
         if (course.timing == sel)
           return course;
         else
           flag = true;
       }
-    } else if ((now.weekday < 5 && now.hour >= 14) || flag == true) {
+    } else if ((now.weekday < 6 && now.hour >= 14) || flag == true) {
       if (flag == true) {
         flag = false;
         return (this.allTimetableCourses[now.weekday + 1].afternoon[0] != null)

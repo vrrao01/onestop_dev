@@ -26,9 +26,9 @@ class _DateCourseState extends State<DateCourse> {
   Widget build(BuildContext context) {
     return Observer(builder: (BuildContext context){
       if(context.read<TimetableStore>().loadOperation.status == FutureStatus.fulfilled){
-        CourseModel next_class=context.read<TimetableStore>().selectedCourseforHome;
+        var next_class = context.read<TimetableStore>().selectedCourseforHome;
         DateTime now=DateTime.now();
-        return Text('Done');
+        return Center(child: Text('scbjn'),);
         // return Column(
         //   children: [
         //     Row(
@@ -167,7 +167,7 @@ class _DateCourseState extends State<DateCourse> {
         //   ],
         // );
       }
-      else {
+      else{
         return HomeTimetableShimmer();
       }
     });
