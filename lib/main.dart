@@ -17,8 +17,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitDown, DeviceOrientation.portraitUp]);
-  sharedPreferences = await SharedPreferences.getInstance();
-  await dotenv.load(fileName: 'assets/config/.env');
   runApp(const MyApp());
 }
 

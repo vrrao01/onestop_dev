@@ -50,7 +50,6 @@ class _HomeTabState extends State<HomeTab> {
           SizedBox(
             height: 10,
           ),
-          MapBox(),
           SizedBox(
             height: 10,
           ),
