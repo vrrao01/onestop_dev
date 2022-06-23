@@ -280,11 +280,11 @@ abstract class _TimetableStore with Store {
         (now.weekday == 5 && now.hour >= 18)) {
       return this.allTimetableCourses[0].morning[0];
     } else if (now.weekday < 5 && now.hour >= 18) {
-      return (this.allTimetableCourses[now.weekday + 1].morning[0] != null)
-          ? this.allTimetableCourses[now.weekday + 1].morning[0]
-          : this.allTimetableCourses[now.weekday + 1].afternoon[0];
+      return (this.allTimetableCourses[now.weekday].morning[0] != null)
+          ? this.allTimetableCourses[now.weekday].morning[0]
+          : this.allTimetableCourses[now.weekday].afternoon[0];
     } else if (now.weekday < 6 && now.hour <= 12) {
-      for (var course in this.allTimetableCourses[now.weekday + 1].morning) {
+      for (var course in this.allTimetableCourses[now.weekday-1].morning) {
         if (course.timing == sel)
           return course;
         else
@@ -293,14 +293,38 @@ abstract class _TimetableStore with Store {
     } else if ((now.weekday < 6 && now.hour >= 14) || flag == true) {
       if (flag == true) {
         flag = false;
-        return (this.allTimetableCourses[now.weekday + 1].afternoon[0] != null)
-            ? this.allTimetableCourses[now.weekday + 1].afternoon[0]
+        return (this.allTimetableCourses[now.weekday-1].afternoon[0] != null)
+            ? this.allTimetableCourses[now.weekday-1].afternoon[0]
             : no_class;
       }
-      for (var course in this.allTimetableCourses[now.weekday + 1].afternoon) {
+      for (var course in this.allTimetableCourses[now.weekday-1].afternoon) {
         if (course.timing == sel) return course;
       }
     }
     return no_class;
+  }
+
+  @computed
+  List<Widget> get todayTimeTableMorning {
+    int timetableIndex = dates[selectedDate].weekday - 1;
+    List<Widget> l = [
+      ...allTimetableCourses[timetableIndex]
+          .morning
+          .map((e) => TimetableTile(course: e))
+          .toList(),
+    ];
+    return l;
+  }
+
+  @computed
+  List<Widget> get todayTimeTableAfternoon {
+    int timetableIndex = dates[selectedDate].weekday - 1;
+    List<Widget> l = [
+      ...allTimetableCourses[timetableIndex]
+          .afternoon
+          .map((e) => TimetableTile(course: e))
+          .toList(),
+    ];
+    return l;
   }
 }

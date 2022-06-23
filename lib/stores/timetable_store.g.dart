@@ -44,6 +44,21 @@ mixin _$TimetableStore on _TimetableStore, Store {
           Computed<CourseModel>(() => super.selectedCourseforHome,
               name: '_TimetableStore.selectedCourseforHome'))
       .value;
+  Computed<List<Widget>>? _$todayTimeTableMorningComputed;
+
+  @override
+  List<Widget> get todayTimeTableMorning => (_$todayTimeTableMorningComputed ??=
+          Computed<List<Widget>>(() => super.todayTimeTableMorning,
+              name: '_TimetableStore.todayTimeTableMorning'))
+      .value;
+  Computed<List<Widget>>? _$todayTimeTableAfternoonComputed;
+
+  @override
+  List<Widget> get todayTimeTableAfternoon =>
+      (_$todayTimeTableAfternoonComputed ??= Computed<List<Widget>>(
+              () => super.todayTimeTableAfternoon,
+              name: '_TimetableStore.todayTimeTableAfternoon'))
+          .value;
 
   late final _$loadOperationAtom =
       Atom(name: '_TimetableStore.loadOperation', context: context);
@@ -147,7 +162,9 @@ coursesLoaded: ${coursesLoaded},
 coursesLoading: ${coursesLoading},
 coursesError: ${coursesError},
 todayTimeTable: ${todayTimeTable},
-selectedCourseforHome: ${selectedCourseforHome}
+selectedCourseforHome: ${selectedCourseforHome},
+todayTimeTableMorning: ${todayTimeTableMorning},
+todayTimeTableAfternoon: ${todayTimeTableAfternoon}
     ''';
   }
 }
