@@ -279,7 +279,7 @@ abstract class _TimetableStore with Store {
         now.weekday == 7 ||
         (now.weekday == 5 && now.hour >= 18)) {
       return this.allTimetableCourses[0].morning[0];
-    } else if (now.weekday < 6 && now.hour >= 18) {
+    } else if (now.weekday < 5 && now.hour >= 18) {
       return (this.allTimetableCourses[now.weekday + 1].morning[0] != null)
           ? this.allTimetableCourses[now.weekday + 1].morning[0]
           : this.allTimetableCourses[now.weekday + 1].afternoon[0];
