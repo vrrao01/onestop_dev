@@ -23,8 +23,6 @@ abstract class _MapBoxStore with Store {
   int selectedCarouselIndex = -1;
   @observable
   bool isTravelPage = false;
-  @observable
-  LatLng myPos = LatLng(-37.327154, -59.119667);
   // List<int>bus_distance=[];
   // List<int>bus_distance_to_time=[];
   List<Map> bus_carousel_data = [];
@@ -33,36 +31,32 @@ abstract class _MapBoxStore with Store {
 
   @action
   void setIndexMapBox(int i) {
-    this.indexBusesorFerry = i;
+    indexBusesorFerry = i;
   }
 
   @action
-  void change_centre_zoom(double lat,double long){
-    this.myPos=LatLng(lat, long);
-  }
-  @action
   void setUserLatLng(double lat, double long) {
-    this.userlat = lat;
-    this.userlong = long;
+    userlat = lat;
+    userlong = long;
   }
 
   @action
   void selectedCarousel(int i) {
-    this.selectedCarouselIndex = i;
+    selectedCarouselIndex = i;
   }
 
   @action
   void checkTravelPage(bool i) {
-    this.isTravelPage = i;
+    isTravelPage = i;
   }
 
   void initialiseCarouselforBuses() {
     autorun((_) {
       for (int index = 0; index < BusStops.length; index++) {
-        this.bus_carousel_data.add({'index': index,'time': BusStops[index]['time'],'lat':BusStops[index]['lat'],'long':BusStops[index]['long'],'status': BusStops[index]['status'],
+        bus_carousel_data.add({'index': index,'time': BusStops[index]['time'],'lat':BusStops[index]['lat'],'long':BusStops[index]['long'],'status': BusStops[index]['status'],
           'distance': BusStops[index]['distance'],'name':BusStops[index]['name']});
       }
-      this.bus_carousel_data.sort((a, b) => a['time'] < b['time'] ? 0 : 1);
+      bus_carousel_data.sort((a, b) => a['time'] < b['time'] ? 0 : 1);
     });
     generate_bus_markers();
   }
@@ -70,8 +64,8 @@ abstract class _MapBoxStore with Store {
   @computed
   List<Widget> get buses_carousel {
     List<Widget> l = List<Widget>.generate(
-      this.bus_carousel_data.length,
-      (index) => carouselCard(this.bus_carousel_data[index]['index'],this.bus_carousel_data[index]['time']),
+      bus_carousel_data.length,
+      (index) => carouselCard(bus_carousel_data[index]['index'],bus_carousel_data[index]['time']),
     );
     return l;
   }
@@ -124,7 +118,7 @@ abstract class _MapBoxStore with Store {
         child: Image.asset(pointIcon),
       ),
     );
-    this.markers.insert(this.markers.length, user_marker);
+    this.markers.add(user_marker);
   }
 
   @action
