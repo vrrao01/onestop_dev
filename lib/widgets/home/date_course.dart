@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
-import 'package:onestop_dev/functions/timetable/time_range.dart';
 import 'package:onestop_dev/globals/days.dart';
 import 'package:onestop_dev/globals/my_colors.dart';
 import 'package:onestop_dev/globals/my_fonts.dart';
-import 'package:onestop_dev/models/timetable.dart';
 import 'package:onestop_dev/stores/timetable_store.dart';
 import 'package:onestop_dev/widgets/timetable/home_shimmer.dart';
-import 'package:onestop_dev/widgets/timetable/lunch_divider.dart';
 import 'package:provider/provider.dart';
-import 'package:shimmer/shimmer.dart';
 
 class DateCourse extends StatefulWidget {
   const DateCourse({

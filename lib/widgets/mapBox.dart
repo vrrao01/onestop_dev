@@ -1,87 +1,268 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:intl/intl.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
-import 'package:mapbox_gl/mapbox_gl.dart';
-import 'package:onestop_dev/main.dart';
+import 'package:maps_launcher/maps_launcher.dart';
 import 'package:onestop_dev/stores/mapbox_store.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+import '../globals/my_colors.dart';
 
 class MapBox extends StatefulWidget {
-  MapBox({Key? key}) : super(key: key);
+  MapBox(
+      {Key? key,})
+      : super(key: key);
+
   @override
   State<MapBox> createState() => _MapBoxState();
 }
 
-bool status = false;
 DateTime now = DateTime.now();
 String formattedTime = DateFormat.jm().format(now);
 
 class _MapBoxState extends State<MapBox> {
+  final MapController _mapController = MapController();
+  final myToken =
+      'pk.eyJ1IjoibGVhbmQ5NjYiLCJhIjoiY2t1cmpreDdtMG5hazJvcGp5YzNxa3VubyJ9.laphl_yeaw_9SUbcebw9Rg';
   final pointIcon = 'assets/images/pointicon.png';
   final busIcon = 'assets/images/busicon.png';
-
   late LatLng myPos = LatLng(-37.327154, -59.119667);
-  late CameraPosition _initialCameraPosition;
-  late MapboxMapController controller;
+  double zoom = 13.0;
 
   void initState() {
     super.initState();
-    _initialCameraPosition = CameraPosition(target: myPos, zoom: 15);
-  }
-
-  _onMapCreated(MapboxMapController controller) async {
-    this.controller = controller;
   }
 
   @override
   Widget build(BuildContext context) {
-    Future.delayed(Duration(minutes: 1), _getLoctaion);
-    return ClipRRect(
-        borderRadius: BorderRadius.all(
-          Radius.circular(40),
-        ),
-      child: Observer(builder: (context) {
-        int selectedIndex = context.read<MapBoxStore>().index;
-        return Stack(
-          children: [
-            SizedBox(
-              height: 365,
-              child: MapboxMap(
-                accessToken: dotenv.env['MAPBOX_ACCESS_TOKEN'],
-                initialCameraPosition: _initialCameraPosition,
-                onMapCreated: _onMapCreated,
-                styleString: "mapbox://styles/mapbox/dark-v10",
-                // onStyleLoadedCallback: _onStyleLoadedCallback,
-                myLocationEnabled: true,
-                myLocationTrackingMode: MyLocationTrackingMode.TrackingGPS,
-                minMaxZoomPreference: const MinMaxZoomPreference(14, 17),
+    return Observer(
+      builder: (context) {
+        var mapbox_store=context.read<MapBoxStore>();
+        mapbox_store.checkTravelPage(true);
+        Future.delayed(Duration(seconds: 10), mapbox_store.getLocation);
+        return ClipRRect(
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+          child: Stack(
+            children: [
+              Container(
+                height: 365,
+                // width: 350,
+                child: FlutterMap(
+                  mapController: _mapController,
+                  options: MapOptions(
+                    center: myPos,
+                    zoom: zoom,
+                  ),
+                  nonRotatedLayers: [
+                    TileLayerOptions(
+                      backgroundColor: kBlack,
+                      urlTemplate:
+                      'https://api.mapbox.com/styles/v1/mapbox/dark-v10/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoibGVhbmQ5NjYiLCJhIjoiY2t1cmpreDdtMG5hazJvcGp5YzNxa3VubyJ9.laphl_yeaw_9SUbcebw9Rg',
+                      additionalOptions: {
+                        'accessToken': myToken,
+                        'id': 'mapbox/light-v10',
+                      },
+                    ),
+                    MarkerLayerOptions(
+                      markers: mapbox_store.markers,
+                    ),
+
+                  ],
+                ),
               ),
-            ),
-          ],
+              Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          mapbox_store.setIndexMapBox(0);
+                          mapbox_store.generate_bus_markers();
+                        },
+                        //padding: EdgeInsets.only(left: 10),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(40),
+                          ),
+                          child: Container(
+                            height: 32,
+                            width: 83,
+                            color: (mapbox_store.indexBusesorFerry == 0) ? lBlue2 : kBlueGrey,
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  IconData(0xe1d5, fontFamily: 'MaterialIcons'),
+                                  color: (mapbox_store.indexBusesorFerry == 0)
+                                      ? kBlueGrey
+                                      : kWhite,
+                                ),
+                                Text(
+                                  "Bus",
+                                  style: TextStyle(
+                                    color: (mapbox_store.indexBusesorFerry == 0)
+                                        ? kBlueGrey
+                                        : kWhite,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            mapbox_store.setIndexMapBox(1);
+                          });
+                        },
+                        //padding: EdgeInsets.only(left: 10),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(40),
+                          ),
+                          child: Container(
+                            height: 32,
+                            width: 83,
+                            color: (mapbox_store.indexBusesorFerry == 1) ? lBlue2 : kBlueGrey,
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  IconData(0xefc2, fontFamily: 'MaterialIcons'),
+                                  color: (mapbox_store.indexBusesorFerry == 1)
+                                      ? kBlueGrey
+                                      : kWhite,
+                                ),
+                                Text(
+                                  "Ferry",
+                                  style: TextStyle(
+                                    color: (mapbox_store.indexBusesorFerry == 1)
+                                        ? kBlueGrey
+                                        : kWhite,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      (mapbox_store.isTravelPage)
+                          ? TextButton(
+                        onPressed: () {
+                          setState(() {
+                            mapbox_store.setIndexMapBox(2);
+                            mapbox_store.generate_restaraunt_markers();
+                          });
+                        },
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(40),
+                          ),
+                          child: Container(
+                            height: 32,
+                            width: 83,
+                            color: (mapbox_store.indexBusesorFerry == 2)
+                                ? lBlue2
+                                : kBlueGrey,
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.bus_alert,
+                                  color: (mapbox_store.indexBusesorFerry == 2)
+                                      ? kBlueGrey
+                                      : kWhite,
+                                ),
+                                Text(
+                                  "Food",
+                                  style: TextStyle(
+                                    color: (mapbox_store.indexBusesorFerry == 2)
+                                        ? kBlueGrey
+                                        : kWhite,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      )
+                          : SizedBox(),
+                    ],
+                  ),
+                  SizedBox(height: 90,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(right: 4, bottom: 8),
+                            child: FloatingActionButton(
+                              heroTag: null,
+                              onPressed: () {},
+                              child: Icon(Icons.navigate_before_outlined),
+                              mini: true,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 8, right: 4),
+                            child: FloatingActionButton(
+                              heroTag: null,
+                              onPressed: () {
+                                _mapController.moveAndRotate(LatLng(mapbox_store.userlat, mapbox_store.userlong), 15, 17);
+                              },
+                              child: Icon(Icons.my_location),
+                              mini: true,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  (mapbox_store.isTravelPage)?CarouselSlider(
+                    items: mapbox_store.buses_carousel,
+                    options: CarouselOptions(
+                      height: 100,
+                      viewportFraction: 0.6,
+                      initialPage: 0,
+                      enableInfiniteScroll: false,
+                      scrollDirection: Axis.horizontal,
+                      // onPageChanged:
+                      //     (int index, CarouselPageChangedReason reason) async {
+                      //
+                      // },
+                    ),
+                  ):SizedBox(),
+                ],
+              ),
+            ],
+          ),
         );
-      }),
+      }
     );
   }
 
-  Location location = new Location();
-  LocationData? _locationData;
-  double lat = 0;
-  double long = 0;
-
-  Future<dynamic> _getLoctaion() async {
-    bool _serviceEnabled;
-    PermissionStatus _permissionGranted;
-    _serviceEnabled = await location.serviceEnabled();
-    if (!_serviceEnabled) {
-      return;
-    }
-    _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      return;
-    }
-    _locationData = await location.getLocation();
-    context.read<MapBoxStore>().setUserLatLng(_locationData!.latitude!, _locationData!.longitude!);
-  }
 }
+
+// PolylineLayerOptions(polylines: [
+//   Polyline(
+//     points: [
+//       LatLng(lat, long),
+//     ],
+//     // isDotted: true,
+//     color: Color(0xFF669DF6),
+//     strokeWidth: 3.0,
+//     borderColor: Color(0xFF1967D2),
+//     borderStrokeWidth: 0.1,
+//   )
+// ])

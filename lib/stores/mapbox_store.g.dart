@@ -16,28 +16,110 @@ mixin _$MapBoxStore on _MapBoxStore, Store {
           Computed<List<Widget>>(() => super.buses_carousel,
               name: '_MapBoxStore.buses_carousel'))
       .value;
-  Computed<List<CameraPosition>>? _$bus_camera_positionsComputed;
+
+  late final _$indexBusesorFerryAtom =
+      Atom(name: '_MapBoxStore.indexBusesorFerry', context: context);
 
   @override
-  List<CameraPosition> get bus_camera_positions =>
-      (_$bus_camera_positionsComputed ??= Computed<List<CameraPosition>>(
-              () => super.bus_camera_positions,
-              name: '_MapBoxStore.bus_camera_positions'))
-          .value;
-
-  late final _$indexAtom = Atom(name: '_MapBoxStore.index', context: context);
-
-  @override
-  int get index {
-    _$indexAtom.reportRead();
-    return super.index;
+  int get indexBusesorFerry {
+    _$indexBusesorFerryAtom.reportRead();
+    return super.indexBusesorFerry;
   }
 
   @override
-  set index(int value) {
-    _$indexAtom.reportWrite(value, super.index, () {
-      super.index = value;
+  set indexBusesorFerry(int value) {
+    _$indexBusesorFerryAtom.reportWrite(value, super.indexBusesorFerry, () {
+      super.indexBusesorFerry = value;
     });
+  }
+
+  late final _$userlatAtom =
+      Atom(name: '_MapBoxStore.userlat', context: context);
+
+  @override
+  double get userlat {
+    _$userlatAtom.reportRead();
+    return super.userlat;
+  }
+
+  @override
+  set userlat(double value) {
+    _$userlatAtom.reportWrite(value, super.userlat, () {
+      super.userlat = value;
+    });
+  }
+
+  late final _$userlongAtom =
+      Atom(name: '_MapBoxStore.userlong', context: context);
+
+  @override
+  double get userlong {
+    _$userlongAtom.reportRead();
+    return super.userlong;
+  }
+
+  @override
+  set userlong(double value) {
+    _$userlongAtom.reportWrite(value, super.userlong, () {
+      super.userlong = value;
+    });
+  }
+
+  late final _$selectedCarouselIndexAtom =
+      Atom(name: '_MapBoxStore.selectedCarouselIndex', context: context);
+
+  @override
+  int get selectedCarouselIndex {
+    _$selectedCarouselIndexAtom.reportRead();
+    return super.selectedCarouselIndex;
+  }
+
+  @override
+  set selectedCarouselIndex(int value) {
+    _$selectedCarouselIndexAtom.reportWrite(value, super.selectedCarouselIndex,
+        () {
+      super.selectedCarouselIndex = value;
+    });
+  }
+
+  late final _$isTravelPageAtom =
+      Atom(name: '_MapBoxStore.isTravelPage', context: context);
+
+  @override
+  bool get isTravelPage {
+    _$isTravelPageAtom.reportRead();
+    return super.isTravelPage;
+  }
+
+  @override
+  set isTravelPage(bool value) {
+    _$isTravelPageAtom.reportWrite(value, super.isTravelPage, () {
+      super.isTravelPage = value;
+    });
+  }
+
+  late final _$markersAtom =
+      Atom(name: '_MapBoxStore.markers', context: context);
+
+  @override
+  List<Marker> get markers {
+    _$markersAtom.reportRead();
+    return super.markers;
+  }
+
+  @override
+  set markers(List<Marker> value) {
+    _$markersAtom.reportWrite(value, super.markers, () {
+      super.markers = value;
+    });
+  }
+
+  late final _$getLocationAsyncAction =
+      AsyncAction('_MapBoxStore.getLocation', context: context);
+
+  @override
+  Future<dynamic> getLocation() {
+    return _$getLocationAsyncAction.run(() => super.getLocation());
   }
 
   late final _$_MapBoxStoreActionController =
@@ -88,33 +170,22 @@ mixin _$MapBoxStore on _MapBoxStore, Store {
   }
 
   @override
-  void set_distance_buses(int i, int distance) {
+  void generate_bus_markers() {
     final _$actionInfo = _$_MapBoxStoreActionController.startAction(
-        name: '_MapBoxStore.set_distance_buses');
+        name: '_MapBoxStore.generate_bus_markers');
     try {
-      return super.set_distance_buses(i, distance);
+      return super.generate_bus_markers();
     } finally {
       _$_MapBoxStoreActionController.endAction(_$actionInfo);
     }
   }
 
   @override
-  void set_duration_buses(int i, int time) {
+  void generate_restaraunt_markers() {
     final _$actionInfo = _$_MapBoxStoreActionController.startAction(
-        name: '_MapBoxStore.set_duration_buses');
+        name: '_MapBoxStore.generate_restaraunt_markers');
     try {
-      return super.set_duration_buses(i, time);
-    } finally {
-      _$_MapBoxStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
-  void initialiseCarouselforBuses() {
-    final _$actionInfo = _$_MapBoxStoreActionController.startAction(
-        name: '_MapBoxStore.initialiseCarouselforBuses');
-    try {
-      return super.initialiseCarouselforBuses();
+      return super.generate_restaraunt_markers();
     } finally {
       _$_MapBoxStoreActionController.endAction(_$actionInfo);
     }
@@ -123,9 +194,13 @@ mixin _$MapBoxStore on _MapBoxStore, Store {
   @override
   String toString() {
     return '''
-index: ${index},
-buses_carousel: ${buses_carousel},
-bus_camera_positions: ${bus_camera_positions}
+indexBusesorFerry: ${indexBusesorFerry},
+userlat: ${userlat},
+userlong: ${userlong},
+selectedCarouselIndex: ${selectedCarouselIndex},
+isTravelPage: ${isTravelPage},
+markers: ${markers},
+buses_carousel: ${buses_carousel}
     ''';
   }
 }
