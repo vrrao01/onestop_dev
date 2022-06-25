@@ -40,8 +40,6 @@ abstract class _TimetableStore with Store {
   void setDate(int i) {
     selectedDate = i;
   }
-
-
   @action
   Future<void> setTimetable(String rollNumber) async {
     print("First API call ${loadOperation.status}");
