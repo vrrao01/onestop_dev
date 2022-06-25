@@ -40,13 +40,12 @@ dependencies:
   http: ^0.13.4
   shared_preferences: ^2.0.12
   qr_flutter: ^4.0.0
-  flutter_map: ^0.14.0
   location: ^4.3.0
   carousel_slider: ^4.0.0
   url_launcher: ^6.0.20
   alphabet_scroll_view: ^0.3.1
   webfeed: ^0.7.0
-  cached_network_image: ^3.2.1
+  cached_network_image: ^3.2.0
   accordion: ^2.2.3
   progress_dialog: ^1.2.4
   xml2json: ^5.3.2
@@ -62,7 +61,10 @@ dependencies:
   json_annotation: ^4.5.0
   sembast: ^3.2.0
   shimmer: ^2.0.0
-
+  mapbox_gl: ^0.16.0
+  flutter_dotenv: ^5.0.2
+  flutter_map: ^1.1.0
+  latlong2: ^0.8.1
 
 dev_dependencies:
   flutter_test:
@@ -113,6 +115,7 @@ flutter:
     - assets/images/
     - assets/images/food/
     - assets/fonts/
+    - assets/config/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

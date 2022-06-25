@@ -20,7 +20,7 @@ class _TimeTableTabState extends State<TimeTableTab> {
   List<Map<int, List<List<String>>>> Data1 = [];
   @override
   Widget build(BuildContext context) {
-    print("Rebuild course_model.dart");
+    print("Rebuild timetable.dart");
     sel = findTimeRange();
     //adjustTime();
     return SingleChildScrollView(

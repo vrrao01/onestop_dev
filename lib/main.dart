@@ -4,11 +4,16 @@ import 'package:onestop_dev/globals/my_colors.dart';
 import 'package:onestop_dev/pages/home/home.dart';
 import 'package:onestop_dev/routes.dart';
 import 'package:onestop_dev/stores/login_store.dart';
+import 'package:onestop_dev/stores/mapbox_store.dart';
 import 'package:onestop_dev/stores/restaurant_store.dart';
 import 'package:onestop_dev/stores/timetable_store.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
+late SharedPreferences sharedPreferences;
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitDown, DeviceOrientation.portraitUp]);
@@ -30,8 +35,11 @@ class MyApp extends StatelessWidget {
           create: (_) => RestaurantStore(),
         ),
         Provider<TimetableStore>(
-          create: (_) => TimetableStore(),
-        )
+            create: (_) => TimetableStore(),
+        ),
+        Provider<MapBoxStore>(
+          create: (_) => MapBoxStore(),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

@@ -1,13 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:onestop_dev/models/timetable/registered_courses.dart';
-import 'package:onestop_dev/models/timetable/course_model.dart';
+import 'package:onestop_dev/models/timetable.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mapbox_gl/mapbox_gl.dart';
 
 class APIService {
-  static String restaurantURL = "https://onestop4.free.beeceptor.com/getAllOutlets";
+  static String restaurantURL = "https://onestop3.free.beeceptor.com/getAllOutlets";
 
-  static Future<List<Map<String, dynamic>>> getRestaurantData() async {
+  static Future<List<Map<String, dynamic>>>  getRestaurantData() async {
     http.Response response = await http.get(Uri.parse(restaurantURL));
     var status = response.statusCode;
     var body = jsonDecode(response.body);
@@ -21,29 +22,7 @@ class APIService {
     } else {
       print(status);
       throw Exception("Data could not be fetched");
-    }
-  }
-
-  static String contactURL = "https://contacts.free.beeceptor.com/contact";
-
-  static Future<List<Map<String, dynamic>>> getContactData() async {
-    http.Response response = await http.get(Uri.parse(contactURL));
-    var status = response.statusCode;
-    var body = jsonDecode(response.body);
-    print("Sending GET request to $contactURL");
-    if (status == 200)
-    {
-      List<Map<String, dynamic>> data = [];
-      for (var json in body)
-      {
-        data.add(json);
-      }
-      return data;
-    }
-    else
-    {
-      print(status);
-      throw Exception("contact Data could not be fetched");
+      return [];
     }
   }
 
@@ -62,6 +41,26 @@ class APIService {
     } else {
       print(response.statusCode);
       throw Exception(response.statusCode);
+    }
+  }
+
+  String baseUrl = 'https://api.mapbox.com/directions/v5/mapbox';
+  String accessToken = dotenv.env['MAPBOX_ACCESS_TOKEN']!;
+  String navType = 'cycling';
+
+  Future getCyclingRouteUsingMapbox(LatLng source, LatLng destination) async {
+    String url =
+        '$baseUrl/$navType/${source.longitude},${source.latitude};${destination.longitude},${destination.latitude}?alternatives=true&continue_straight=true&geometries=geojson&language=en&overview=full&steps=true&access_token=$accessToken';
+    try {
+      final responseData = await http.post(
+        Uri.parse(url),
+        headers: {
+          HttpHeaders.contentTypeHeader: 'application/json',
+        },
+      );
+      return responseData.body;
+    } catch (e) {
+      throw Exception(e);
     }
   }
 }

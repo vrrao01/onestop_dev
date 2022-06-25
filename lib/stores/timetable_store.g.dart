@@ -37,6 +37,28 @@ mixin _$TimetableStore on _TimetableStore, Store {
           Computed<List<Widget>>(() => super.todayTimeTable,
               name: '_TimetableStore.todayTimeTable'))
       .value;
+  Computed<CourseModel>? _$selectedCourseforHomeComputed;
+
+  @override
+  CourseModel get selectedCourseforHome => (_$selectedCourseforHomeComputed ??=
+          Computed<CourseModel>(() => super.selectedCourseforHome,
+              name: '_TimetableStore.selectedCourseforHome'))
+      .value;
+  Computed<List<Widget>>? _$todayTimeTableMorningComputed;
+
+  @override
+  List<Widget> get todayTimeTableMorning => (_$todayTimeTableMorningComputed ??=
+          Computed<List<Widget>>(() => super.todayTimeTableMorning,
+              name: '_TimetableStore.todayTimeTableMorning'))
+      .value;
+  Computed<List<Widget>>? _$todayTimeTableAfternoonComputed;
+
+  @override
+  List<Widget> get todayTimeTableAfternoon =>
+      (_$todayTimeTableAfternoonComputed ??= Computed<List<Widget>>(
+              () => super.todayTimeTableAfternoon,
+              name: '_TimetableStore.todayTimeTableAfternoon'))
+          .value;
 
   late final _$loadOperationAtom =
       Atom(name: '_TimetableStore.loadOperation', context: context);
@@ -70,19 +92,19 @@ mixin _$TimetableStore on _TimetableStore, Store {
     });
   }
 
-  late final _$showDropDownAtom =
-      Atom(name: '_TimetableStore.showDropDown', context: context);
+  late final _$isHomePageAtom =
+      Atom(name: '_TimetableStore.isHomePage', context: context);
 
   @override
-  bool get showDropDown {
-    _$showDropDownAtom.reportRead();
-    return super.showDropDown;
+  bool get isHomePage {
+    _$isHomePageAtom.reportRead();
+    return super.isHomePage;
   }
 
   @override
-  set showDropDown(bool value) {
-    _$showDropDownAtom.reportWrite(value, super.showDropDown, () {
-      super.showDropDown = value;
+  set isHomePage(bool value) {
+    _$isHomePageAtom.reportWrite(value, super.isHomePage, () {
+      super.isHomePage = value;
     });
   }
 
@@ -109,22 +131,22 @@ mixin _$TimetableStore on _TimetableStore, Store {
   }
 
   @override
-  void toggleDropDown() {
+  void processTimetable() {
     final _$actionInfo = _$_TimetableStoreActionController.startAction(
-        name: '_TimetableStore.toggleDropDown');
+        name: '_TimetableStore.processTimetable');
     try {
-      return super.toggleDropDown();
+      return super.processTimetable();
     } finally {
       _$_TimetableStoreActionController.endAction(_$actionInfo);
     }
   }
 
   @override
-  void setDropDown(bool b) {
+  void changePage(bool i) {
     final _$actionInfo = _$_TimetableStoreActionController.startAction(
-        name: '_TimetableStore.setDropDown');
+        name: '_TimetableStore.changePage');
     try {
-      return super.setDropDown(b);
+      return super.changePage(i);
     } finally {
       _$_TimetableStoreActionController.endAction(_$actionInfo);
     }
@@ -135,11 +157,14 @@ mixin _$TimetableStore on _TimetableStore, Store {
     return '''
 loadOperation: ${loadOperation},
 selectedDate: ${selectedDate},
-showDropDown: ${showDropDown},
+isHomePage: ${isHomePage},
 coursesLoaded: ${coursesLoaded},
 coursesLoading: ${coursesLoading},
 coursesError: ${coursesError},
-todayTimeTable: ${todayTimeTable}
+todayTimeTable: ${todayTimeTable},
+selectedCourseforHome: ${selectedCourseforHome},
+todayTimeTableMorning: ${todayTimeTableMorning},
+todayTimeTableAfternoon: ${todayTimeTableAfternoon}
     ''';
   }
 }
