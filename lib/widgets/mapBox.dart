@@ -29,7 +29,7 @@ class _MapBoxState extends State<MapBox> {
       'pk.eyJ1IjoibGVhbmQ5NjYiLCJhIjoiY2t1cmpreDdtMG5hazJvcGp5YzNxa3VubyJ9.laphl_yeaw_9SUbcebw9Rg';
   final pointIcon = 'assets/images/pointicon.png';
   final busIcon = 'assets/images/busicon.png';
-  late LatLng myPos = LatLng(-37.327154, -59.119667);
+
   double zoom = 13.0;
 
   void initState() {
@@ -43,6 +43,7 @@ class _MapBoxState extends State<MapBox> {
         var mapbox_store=context.read<MapBoxStore>();
         mapbox_store.checkTravelPage(true);
         Future.delayed(Duration(seconds: 10), mapbox_store.getLocation);
+        mapbox_store.change_centre_zoom(mapbox_store.userlat, mapbox_store.userlong);
         return ClipRRect(
           borderRadius: BorderRadius.all(Radius.circular(20)),
           child: Stack(
@@ -53,7 +54,7 @@ class _MapBoxState extends State<MapBox> {
                 child: FlutterMap(
                   mapController: _mapController,
                   options: MapOptions(
-                    center: myPos,
+                    center: mapbox_store.myPos,
                     zoom: zoom,
                   ),
                   nonRotatedLayers: [

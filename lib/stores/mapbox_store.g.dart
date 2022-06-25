@@ -98,6 +98,21 @@ mixin _$MapBoxStore on _MapBoxStore, Store {
     });
   }
 
+  late final _$myPosAtom = Atom(name: '_MapBoxStore.myPos', context: context);
+
+  @override
+  LatLng get myPos {
+    _$myPosAtom.reportRead();
+    return super.myPos;
+  }
+
+  @override
+  set myPos(LatLng value) {
+    _$myPosAtom.reportWrite(value, super.myPos, () {
+      super.myPos = value;
+    });
+  }
+
   late final _$markersAtom =
       Atom(name: '_MapBoxStore.markers', context: context);
 
@@ -131,6 +146,17 @@ mixin _$MapBoxStore on _MapBoxStore, Store {
         name: '_MapBoxStore.setIndexMapBox');
     try {
       return super.setIndexMapBox(i);
+    } finally {
+      _$_MapBoxStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void change_centre_zoom(double lat, double long) {
+    final _$actionInfo = _$_MapBoxStoreActionController.startAction(
+        name: '_MapBoxStore.change_centre_zoom');
+    try {
+      return super.change_centre_zoom(lat, long);
     } finally {
       _$_MapBoxStoreActionController.endAction(_$actionInfo);
     }
@@ -199,6 +225,7 @@ userlat: ${userlat},
 userlong: ${userlong},
 selectedCarouselIndex: ${selectedCarouselIndex},
 isTravelPage: ${isTravelPage},
+myPos: ${myPos},
 markers: ${markers},
 buses_carousel: ${buses_carousel}
     ''';
