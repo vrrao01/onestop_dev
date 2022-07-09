@@ -92,19 +92,20 @@ mixin _$TimetableStore on _TimetableStore, Store {
     });
   }
 
-  late final _$isHomePageAtom =
-      Atom(name: '_TimetableStore.isHomePage', context: context);
+
+  late final _$showDropDownAtom =
+      Atom(name: '_TimetableStore.showDropDown', context: context);
 
   @override
-  bool get isHomePage {
-    _$isHomePageAtom.reportRead();
-    return super.isHomePage;
+  bool get showDropDown {
+    _$showDropDownAtom.reportRead();
+    return super.showDropDown;
   }
 
   @override
-  set isHomePage(bool value) {
-    _$isHomePageAtom.reportWrite(value, super.isHomePage, () {
-      super.isHomePage = value;
+  set showDropDown(bool value) {
+    _$showDropDownAtom.reportWrite(value, super.showDropDown, () {
+      super.showDropDown = value;
     });
   }
 
@@ -131,22 +132,24 @@ mixin _$TimetableStore on _TimetableStore, Store {
   }
 
   @override
-  void processTimetable() {
+
+  void toggleDropDown() {
     final _$actionInfo = _$_TimetableStoreActionController.startAction(
-        name: '_TimetableStore.processTimetable');
+        name: '_TimetableStore.toggleDropDown');
     try {
-      return super.processTimetable();
+      return super.toggleDropDown();
     } finally {
       _$_TimetableStoreActionController.endAction(_$actionInfo);
     }
   }
 
   @override
-  void changePage(bool i) {
+
+  void setDropDown(bool b) {
     final _$actionInfo = _$_TimetableStoreActionController.startAction(
-        name: '_TimetableStore.changePage');
+        name: '_TimetableStore.setDropDown');
     try {
-      return super.changePage(i);
+      return super.setDropDown(b);
     } finally {
       _$_TimetableStoreActionController.endAction(_$actionInfo);
     }
@@ -157,7 +160,7 @@ mixin _$TimetableStore on _TimetableStore, Store {
     return '''
 loadOperation: ${loadOperation},
 selectedDate: ${selectedDate},
-isHomePage: ${isHomePage},
+showDropDown: ${showDropDown},
 coursesLoaded: ${coursesLoaded},
 coursesLoading: ${coursesLoading},
 coursesError: ${coursesError},
