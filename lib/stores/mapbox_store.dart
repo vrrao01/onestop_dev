@@ -94,17 +94,17 @@ abstract class _MapBoxStore with Store {
     return l;
   }
 
-  // @computed
-  // List<CameraPosition> get bus_camera_positions{
-  //   // initialize map symbols in the same order as carousel widgets
-  //   List<CameraPosition> kBusStopsList = List<CameraPosition>.generate(
-  //       BusStops.length,
-  //           (index) => CameraPosition(
-  //           target: this.bus_carousel_data[index]['index'],
-  //           zoom: 15),
-  //   );
-  //   return kBusStopsList;
-  // }
+  @computed
+  List<CameraPosition> get bus_camera_positions{
+    // initialize map symbols in the same order as carousel widgets
+    List<CameraPosition> kBusStopsList = List<CameraPosition>.generate(
+        BusStops.length,
+            (index) => CameraPosition(
+            target: this.bus_carousel_data[index]['index'],
+            zoom: 15),
+    );
+    return kBusStopsList;
+  }
 
   Location location = new Location();
   LocationData? _locationData;
