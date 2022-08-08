@@ -6,6 +6,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:onestop_dev/globals/my_colors.dart';
 import 'package:onestop_dev/stores/mapbox_store.dart';
+import 'package:onestop_dev/widgets/ui/list_shimmer.dart';
 import 'package:provider/provider.dart';
 
 class MapBox extends StatefulWidget {
@@ -80,21 +81,37 @@ class _MapBoxState extends State<MapBox> {
             //     ],
             //   ),
             // ),
-            Container(
-                height: 365,
-                width: double.infinity,
-                child: GoogleMap(
-                  onMapCreated: onMapCreate,
-                  initialCameraPosition: CameraPosition(target: LatLng(26.11, 91.70), zoom: 15),
-                  markers: mapbox_store.markers.toSet(),
-                  // polylines: poly.toSet(),
-                  myLocationEnabled: true,
-                  myLocationButtonEnabled: false,
-                  compassEnabled: true,
-                  trafficEnabled: true,
-                  zoomControlsEnabled: false,
-                ),
+            FutureBuilder(
+              builder: (ctx, snapshot) {
+                if (snapshot.hasData) {
+                  // If we got an error
+                  return Container(
+                    height: 365,
+                    width: double.infinity,
+                    child: GoogleMap(
+                      onMapCreated: onMapCreate,
+                      initialCameraPosition: CameraPosition(
+                          target: LatLng(
+                              mapbox_store.userlat, mapbox_store.userlong),
+                          zoom: 15),
+                      markers: mapbox_store.markers.toSet(),
+                      // polylines: poly.toSet(),
+                      myLocationEnabled: true,
+                      myLocationButtonEnabled: false,
+                      compassEnabled: true,
+                      trafficEnabled: true,
+                      zoomControlsEnabled: false,
+                    ),
+                  );
+                }
+                return ListShimmer(
+                  height: 365,
+                  count: 1,
+                );
+              },
+              future: mapbox_store.getLocation(),
             ),
+
             Column(
               children: [
                 Row(
@@ -256,7 +273,8 @@ class _MapBoxState extends State<MapBox> {
                               //         mapbox_store.userlong),
                               //     15,
                               //     17);
-                              zoomInMarker(mapbox_store.userlat, mapbox_store.userlong);
+                              zoomInMarker(
+                                  mapbox_store.userlat, mapbox_store.userlong);
                             },
                             child: Icon(Icons.my_location),
                             mini: true,
@@ -289,11 +307,13 @@ class _MapBoxState extends State<MapBox> {
       );
     });
   }
+
   void onMapCreate(controller) {
     setState(() {
       _mapController = controller;
     });
   }
+
   void zoomInMarker(double lat, double long) {
     _mapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
         target: LatLng(lat, long), zoom: 17.0, bearing: 90.0, tilt: 45.0)));

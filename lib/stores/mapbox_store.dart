@@ -134,6 +134,7 @@ abstract class _MapBoxStore with Store {
     _locationData = await location.getLocation();
     this.userlat = _locationData!.latitude!;
     this.userlong = _locationData!.longitude!;
+    return LatLng(this.userlat, this.userlong);
     // Marker user_marker = Marker(
     //   point: LatLng(this.userlat, this.userlong),
     //   width: 8,

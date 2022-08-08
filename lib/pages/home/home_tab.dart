@@ -13,7 +13,6 @@ import 'package:onestop_dev/widgets/mapbox/mapBox.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
-
 class HomeTab extends StatefulWidget {
   const HomeTab({Key? key}) : super(key: key);
 
@@ -39,15 +38,10 @@ class _HomeTabState extends State<HomeTab> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          SizedBox(
-            height: 10,
-          ),
-          Builder(
-              builder: (context) {
-                context.read<MapBoxStore>().checkTravelPage(false);
-                return MapBox();
-              }
-          ),
+          Builder(builder: (context) {
+            context.read<MapBoxStore>().checkTravelPage(false);
+            return MapBox();
+          }),
           SizedBox(
             height: 10,
           ),
