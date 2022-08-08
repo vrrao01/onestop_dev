@@ -12,6 +12,8 @@ class MapBoxStore = _MapBoxStore with _$MapBoxStore;
 abstract class _MapBoxStore with Store {
   _MapBoxStore() {
     initialiseCarouselforBuses();
+    generate_bus_markers();
+    generate_restaraunt_markers();
   }
   @observable
   int indexBusesorFerry = 0;
@@ -145,44 +147,36 @@ abstract class _MapBoxStore with Store {
     // );
     // this.markers.add(user_marker);
   }
+  List<Marker>bus_markers=[];
+  List<Marker>restaurant_markers=[];
 
   @action
   void generate_bus_markers() {
-    List<Marker> l = List.generate(
+    this.restaurant_markers = List.generate(
       this.bus_carousel_data.length,
-      (index) =>
-      //     Marker(
-      //   point: LatLng(this.bus_carousel_data[index]['lat'],
-      //       this.bus_carousel_data[index]['long']),
-      //   width: 25.0,
-      //   height: 25.0,
-      //   builder: (ctx) => Container(
-      //     child: Image.asset(busIcon),
-      //   ),
-      // ),
-      Marker(markerId: MarkerId('bus$index'),position: LatLng(this.bus_carousel_data[index]['lat'], this.bus_carousel_data[index]['long'])),
+          (index) =>
+          Marker(markerId: MarkerId('bus$index'),position: LatLng(this.bus_carousel_data[index]['lat'], this.bus_carousel_data[index]['long'])),
     );
-    this.markers = l;
   }
 
   @action
   void generate_restaraunt_markers() {
-    List<Marker> l = List.generate(
+    this.bus_markers = List.generate(
       this.bus_carousel_data.length,
-      (index) =>
-      //     Marker(
-      //   point: LatLng(this.bus_carousel_data[index]['lat'],
-      //       this.bus_carousel_data[index]['long']),
-      //   width: 25.0,
-      //   height: 25.0,
-      //   builder: (ctx) => Container(
-      //     child: Image.asset(restaurauntIcon),
-      //   ),
-      // ),
-      Marker(markerId: MarkerId('bus$index'),position: LatLng(this.bus_carousel_data[index]['lat'], this.bus_carousel_data[index]['long'])),
+          (index) =>
+          Marker(markerId: MarkerId('bus$index'),position: LatLng(this.bus_carousel_data[index]['lat'], this.bus_carousel_data[index]['long'])),
     );
-    this.markers = l;
   }
+
+  @action
+  void call_bus_markers(){
+    this.markers=bus_markers;
+  }
+  @action
+  void call_restaurant_markers(){
+    this.markers=restaurant_markers;
+  }
+
 
 //   @action
 //   void generate_polylines() {

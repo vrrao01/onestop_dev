@@ -16,6 +16,14 @@ mixin _$MapBoxStore on _MapBoxStore, Store {
           Computed<List<Widget>>(() => super.buses_carousel,
               name: '_MapBoxStore.buses_carousel'))
       .value;
+  Computed<List<CameraPosition>>? _$bus_camera_positionsComputed;
+
+  @override
+  List<CameraPosition> get bus_camera_positions =>
+      (_$bus_camera_positionsComputed ??= Computed<List<CameraPosition>>(
+              () => super.bus_camera_positions,
+              name: '_MapBoxStore.bus_camera_positions'))
+          .value;
 
   late final _$indexBusesorFerryAtom =
       Atom(name: '_MapBoxStore.indexBusesorFerry', context: context);
@@ -301,6 +309,28 @@ mixin _$MapBoxStore on _MapBoxStore, Store {
   }
 
   @override
+  void call_bus_markers() {
+    final _$actionInfo = _$_MapBoxStoreActionController.startAction(
+        name: '_MapBoxStore.call_bus_markers');
+    try {
+      return super.call_bus_markers();
+    } finally {
+      _$_MapBoxStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void call_restaurant_markers() {
+    final _$actionInfo = _$_MapBoxStoreActionController.startAction(
+        name: '_MapBoxStore.call_restaurant_markers');
+    try {
+      return super.call_restaurant_markers();
+    } finally {
+      _$_MapBoxStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 indexBusesorFerry: ${indexBusesorFerry},
@@ -314,7 +344,8 @@ bus_carousel_items: ${bus_carousel_items},
 bus_stop_polylines: ${bus_stop_polylines},
 loadOperation: ${loadOperation},
 markers: ${markers},
-buses_carousel: ${buses_carousel}
+buses_carousel: ${buses_carousel},
+bus_camera_positions: ${bus_camera_positions}
     ''';
   }
 }

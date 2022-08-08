@@ -88,20 +88,20 @@ class _MapBoxState extends State<MapBox> {
                   return Container(
                     height: 365,
                     width: double.infinity,
-                    child: GoogleMap(
-                      onMapCreated: onMapCreate,
-                      initialCameraPosition: CameraPosition(
-                          target: LatLng(
-                              mapbox_store.userlat, mapbox_store.userlong),
-                          zoom: 15),
-                      markers: mapbox_store.markers.toSet(),
-                      // polylines: poly.toSet(),
-                      myLocationEnabled: true,
-                      myLocationButtonEnabled: false,
-                      compassEnabled: true,
-                      trafficEnabled: true,
-                      zoomControlsEnabled: false,
-                    ),
+                    // child: GoogleMap(
+                    //   onMapCreated: onMapCreate,
+                    //   initialCameraPosition: CameraPosition(
+                    //       target: LatLng(
+                    //           mapbox_store.userlat, mapbox_store.userlong),
+                    //       zoom: 15),
+                    //   markers: mapbox_store.markers.toSet(),
+                    //   // polylines: poly.toSet(),
+                    //   myLocationEnabled: true,
+                    //   myLocationButtonEnabled: false,
+                    //   compassEnabled: true,
+                    //   trafficEnabled: true,
+                    //   zoomControlsEnabled: false,
+                    // ),
                   );
                 }
                 return ListShimmer(
@@ -120,7 +120,7 @@ class _MapBoxState extends State<MapBox> {
                     TextButton(
                       onPressed: () {
                         mapbox_store.setIndexMapBox(0);
-                        mapbox_store.generate_bus_markers();
+                        mapbox_store.call_bus_markers();
                       },
                       //padding: EdgeInsets.only(left: 10),
                       child: ClipRRect(
@@ -201,7 +201,7 @@ class _MapBoxState extends State<MapBox> {
                             onPressed: () {
                               setState(() {
                                 mapbox_store.setIndexMapBox(2);
-                                mapbox_store.generate_restaraunt_markers();
+                                mapbox_store.call_restaurant_markers();
                               });
                             },
                             child: ClipRRect(
