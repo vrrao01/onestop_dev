@@ -7,7 +7,6 @@ import 'package:onestop_dev/widgets/mapbox/mapBox.dart';
 import 'package:onestop_dev/widgets/travel/bus_details.dart';
 import 'package:onestop_dev/widgets/travel/ferry_details.dart';
 import 'package:provider/provider.dart';
-import 'data.dart';
 
 class TravelPage extends StatefulWidget {
   const TravelPage({Key? key}) : super(key: key);
@@ -226,7 +225,7 @@ class _TravelPageState extends State<TravelPage> {
                                   ),
                                 );
                               })
-                          : BusDetails(day: day),
+                          : BusDetails(index: (day=='Weekdays')?1:0),
                     ],
                   )
                 : FerryDetails(),

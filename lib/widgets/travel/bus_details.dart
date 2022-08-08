@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:onestop_dev/globals/my_colors.dart';
 import 'package:onestop_dev/globals/my_fonts.dart';
-import 'package:onestop_dev/pages/travel/data.dart';
+import 'package:onestop_dev/functions/travel/has_left.dart';
+import 'package:onestop_dev/globals/travel_details.dart';
 import 'bus_tile.dart';
 
 class BusDetails extends StatefulWidget {
-  late String day;
-  BusDetails({Key? key, required this.day}) : super(key: key);
+  late int index;
+  BusDetails({Key? key, required this.index}) : super(key: key);
 
   @override
   State<BusDetails> createState() => _BusDetailsState();
@@ -16,6 +17,7 @@ class _BusDetailsState extends State<BusDetails> {
 
   bool isCity = false;
   bool isCampus = false;
+
 
   @override
   Widget build(BuildContext context) {
@@ -39,12 +41,15 @@ class _BusDetailsState extends State<BusDetails> {
         ),
         isCity ?
         Column(
-            children: Buses.map((e) {
-              return BusTile(
-                time: widget.day,
-                isLeft: e['status'],
+            children: BUSTIME[widget.index].map((e) {
+              return Padding(
+                padding: EdgeInsets.fromLTRB(0, 5, 0, 5),
+                child: BusTile(
+                  time: e,
+                  isLeft: hasLeft(e.toString()),
+                ),
               );
-            }).toList()) :
+            }).toList()):
         Container(),
         Container(
           child: ListTile(
@@ -68,10 +73,13 @@ class _BusDetailsState extends State<BusDetails> {
         ),
         isCampus
             ? Column(
-            children: Buses.map((e) {
-              return BusTile(
-                time: widget.day,
-                isLeft: e['status'],
+            children: BUSTIME[widget.index+2].map((e) {
+              return Padding(
+                padding: EdgeInsets.fromLTRB(0, 5, 0, 5),
+                child: BusTile(
+                  time: e,
+                  isLeft: hasLeft(e.toString()),
+                ),
               );
             }).toList())
             : Container(),
