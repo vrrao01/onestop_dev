@@ -62,7 +62,7 @@ class BusStopList extends StatelessWidget {
                             textColor: kWhite,
                             leading: const CircleAvatar(
                               backgroundColor: lYellow2,
-                              radius: 26,
+                              radius: 20,
                               child: Icon(
                                 FluentIcons.vehicle_bus_24_filled,
                                 color: kBlueGrey,
@@ -70,13 +70,13 @@ class BusStopList extends StatelessWidget {
                             ),
                             title: Text(
                               map_store.allLocationData[index]['name'],
-                              style: MyFonts.w500.setColor(kWhite),
+                              style: MyFonts.w500.setColor(kWhite).size(14),
                             ),
                             subtitle: Text(
                                 map_store.allLocationData[index]['distance']
                                     .toString() +
                                     " km",
-                                style: MyFonts.w500.setColor(kGrey13)),
+                                style: MyFonts.w500.setColor(kGrey13).size(11)),
                             // trailing: (map_store.allLocationData[index]['status'] ==
                             //     'left')
                             //     ? Column(
@@ -98,10 +98,10 @@ class BusStopList extends StatelessWidget {
                             //
                             trailing: weekDay ? Text(
                             nextTime(busTime[1]),
-                              style: MyFonts.w500.setColor(lBlue2),
+                              style: MyFonts.w500.setColor(lBlue2).size(14),
                             ) : Text(
                               nextTime(busTime[0]),
-                              style: MyFonts.w500.setColor(lBlue2),
+                              style: MyFonts.w500.setColor(lBlue2).size(11),
                             ),
                           ),
                         );
