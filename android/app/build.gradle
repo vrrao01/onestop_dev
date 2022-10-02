@@ -67,6 +67,7 @@ android {
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         manifestPlaceholders['GMAP_KEY'] = dartEnvironmentVariables.GMAP_KEY
+        multiDexEnabled true
     }
 
     signingConfigs {
@@ -90,5 +91,7 @@ flutter {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation "com.google.firebase:firebase-inappmessaging-display:19.1.5"
+    implementation "com.android.support:multidex:1.0.3"
 }
 

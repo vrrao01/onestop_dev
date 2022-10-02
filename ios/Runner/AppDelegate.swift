@@ -6,8 +6,14 @@ import GoogleMaps
 @objc class AppDelegate: FlutterAppDelegate {
   override func application(
     _ application: UIApplication,
-    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any] ?
   ) -> Bool {
+    if #available(iOS 10.0, *) {
+        UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
+    }
+    FlutterLocalNotificationsPlugin.setPluginRegistrantCallback { (registry) in
+        GeneratedPluginRegistrant.register(with: registry)
+    }
     let dartDefinesString = Bundle.main.infoDictionary!["DART_DEFINES"] as! String
     var dartDefinesDictionary = [String:String]()
     for definedValue in dartDefinesString.components(separatedBy: ",") {
