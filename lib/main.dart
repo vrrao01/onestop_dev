@@ -2,8 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:onestop_dev/functions/utility/check_last_updated.dart';
 import 'package:onestop_dev/globals/my_colors.dart';
+import 'package:onestop_dev/pages/profile.dart';
 import 'package:onestop_dev/routes.dart';
 import 'package:onestop_dev/stores/common_store.dart';
 import 'package:onestop_dev/stores/login_store.dart';
@@ -19,8 +21,39 @@ void main() async {
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
       overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top]);
   await checkLastUpdated();
+
+  OneSignal.shared.setAppId("2d48b196-f49e-4e86-afaa-279f4e6e17c4");
+  OneSignal.shared.promptUserForPushNotificationPermission().then((accepted) {
+    print("Accepted permission: $accepted");
+  });
+  OneSignal.shared.setNotificationWillShowInForegroundHandler(
+      (OSNotificationReceivedEvent event) {
+    OSNotificationDisplayType.notification;
+  });
+
+  OneSignal.shared
+      .setNotificationOpenedHandler((OSNotificationOpenedResult result) async {
+     await navigatorKey.currentState!.push(
+      MaterialPageRoute(
+        builder: (context) => const ProfilePage(),
+      ),
+    );
+    print('PRINTING RESULT');
+    print(result);
+  });
+
+  OneSignal.shared.setPermissionObserver((OSPermissionStateChanges changes) {});
+
+  OneSignal.shared
+      .setSubscriptionObserver((OSSubscriptionStateChanges changes) {});
+
+  OneSignal.shared.setEmailSubscriptionObserver(
+      (OSEmailSubscriptionStateChanges emailChanges) {});
+
   runApp(const MyApp());
 }
+
+final GlobalKey<NavigatorState> navigatorKey =  GlobalKey<NavigatorState>();
 
 final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
@@ -50,6 +83,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         scaffoldMessengerKey: rootScaffoldMessengerKey,
         debugShowCheckedModeBanner: false,
+        navigatorKey: navigatorKey,
         theme: ThemeData(
             scaffoldBackgroundColor: kBackground,
             splashColor: Colors.transparent),
