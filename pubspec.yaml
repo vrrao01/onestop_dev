@@ -72,6 +72,8 @@ dependencies:
   infinite_scroll_pagination: ^3.2.0
   upgrader: ^5.1.0
   badges: ^2.0.3
+  onesignal_flutter: ^3.5.0
+  firebase_core: ^2.7.1
 
 
 dev_dependencies:
